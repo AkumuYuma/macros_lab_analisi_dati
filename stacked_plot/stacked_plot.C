@@ -160,7 +160,7 @@ void stacked_plot(const TString &estensione, const TString &tipoMuone, const TSt
     histoMcTotale->SetTitle("");
 
     // Setto i titoli agli assi
-    const TString titoloX{"q*pt"}; // Da cambiare in base alla variabile !
+    const TString titoloX{osservabile}; // Da cambiare in base alla variabile !
     histoMcTotale->GetXaxis()->SetTitle(titoloX);
 
     // Bisogna farlo in stile C perchè altrimenti non puoi fare il print con una sola cifra significativa
