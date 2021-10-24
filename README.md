@@ -1,4 +1,4 @@
-# Raccolta di macro con il framework root (Cern)
+# Raccolta di macro per il framework root (Cern)
 Raccolta di macro scritte durante il corso di analisi dati (terzo semestre magistrale).
 
 Le macro sono quelle passate dal professore durante le lezioni, anche presenti sul sito [del corso](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/scientific-data-analysis-laboratory-2021-2022.html),
