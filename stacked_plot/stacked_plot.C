@@ -241,10 +241,13 @@ void stacked_plot(const TString &estensione, const TString &tipoMuone, const TSt
     histoRapporto->Draw("EP"); 
 
     // Salvo il ratio plot
-    TString fileName{outPath + "ratio_plot_" + nomeBasePlots}; 
+    TString fileName{outPath + "ratio_plot_"}; 
     if (rebin) {
-        fileName += "_rebinned";
+        fileName += "rebinned_" + nomeBasePlots;
+    } else {
+        fileName += nomeBasePlots;
     }
+    
     c1->SaveAs(fileName); 
 
 
