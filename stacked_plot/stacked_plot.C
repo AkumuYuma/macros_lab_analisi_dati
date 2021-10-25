@@ -235,21 +235,20 @@ void stacked_plot(const TString &estensione, const TString &tipoMuone, const TSt
     histoRapporto->SetMinimum(0.2); 
     histoRapporto->SetMaximum(1.8); 
 
-    // Aggiustamento titolo 
+    // Aggiustamento titoli
     histoRapporto->GetYaxis()->SetTitle(tipoMuone + "Muons - Data/Mc ratio"); 
     histoRapporto->GetYaxis()->SetTitleOffset(1.25); 
+    TString titoloHisto{"Ratio Plot"}; 
+    if (rebin) titoloHisto += "Rebinned"; 
+    histoRapporto->SetTitle(titoloHisto); 
+
     histoRapporto->Draw("EP"); 
 
     // Salvo il ratio plot
     TString fileName{outPath + "ratio_plot_"}; 
-    if (rebin) {
-        fileName += "rebinned_" + nomeBasePlots;
-    } else {
-        fileName += nomeBasePlots;
-    }
-    
+    if (rebin) fileName += "rebinned_" + nomeBasePlots;
+    else fileName += nomeBasePlots;
     c1->SaveAs(fileName); 
-
 
     // Cancello i puntatori di cui non ho più bisogno
     delete c1;
