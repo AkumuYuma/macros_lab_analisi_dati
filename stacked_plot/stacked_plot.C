@@ -22,7 +22,23 @@ const string currentDate() {
 
 // Perchè usi le TString e non le stringhe normali ? Vedi appunti su metodo Get di TFile.
 // Il valore di default della data è settato alla data di oggi.
-void stacked_plot(const TString &estensione, const TString &tipoMuone, const TString &osservabile = "qtimespt", bool logScale = true, const TString &scaleType = "unif") {
+void stacked_plot(const TString &estensione, const TString &tipoMuone, const TString &osservabile = "qtimespt", bool logScale = true, bool rebin = false, const TString &scaleType = "unif") {
+    /*
+    Macro per generare uno stacked plot delle componenti MC sovrapposto ai dati sperimentali. 
+    Nell'ultima parte produce anche un ratio plot tra dati e MC. 
+
+    Parametri: 
+    const TString &estensione: Estensione dei file da salvare 
+    const TString &tipoMuone: "SOFT" o "TIGHT" 
+    const TString &osservabile: variabile da graficare. Default a "qtimespt" 
+    bool logScale: Se visualizzare lo stacked plot in scala logartmica. Default a true. 
+    bool rebin: Se fare il rebin del ratio plot. Default a false. 
+    const TString &scaleType: Tipo di scaling del plot. Default a "unif" (normalizzazione dei MC)
+    
+    Return: 
+    void (Salva i plot nella cartella Plots) 
+    */
+
 
     // ------------------------- Operazioni preparatorie ------------------------
     const TString data{currentDate()};
@@ -194,10 +210,48 @@ void stacked_plot(const TString &estensione, const TString &tipoMuone, const TSt
     // Salvo lo stacked plot
     c1->SaveAs(outPath + "stacked_plot_" + nomeBasePlots);
 
+
+    // -------------------- ratio plot -----------------------------
+    c1->Clear(); // Cancello tutto nel canvas
+    gPad->SetLogy(0); // Tolgo la scala logaritmica
+
+    TH1D *histoRapporto; 
+    if (rebin) {
+        // Nota, quando fai il rebinning, gli edge del nuovo istogramma e del vecchio devono corrispondere, 
+        // per questo xBins parte da 0 e arriva a 20. 
+        // Inoltre passo 26 elementi, mentre dopo specifico un rebinning a 25 bin, perchè ho il bin 0 che non viene mostrato. 
+        const double xBins[] = {0.,0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5,6.0,6.5,7.0,7.5,8.0,9.0,10.0,11.0,12.0,13.0,15.0,17.0,19.5,20.};
+        histoRapporto = dynamic_cast<TH1D *>(dataSomma->Rebin(25, "histoRapporto", xBins)); 
+        histoRapporto->Divide(dynamic_cast<TH1D *>(histoMcTotale->Rebin(25, "histoMcTotale", xBins))); 
+    } else {
+        // Inizializzo un nuovo istogramma con i dati
+        histoRapporto = dynamic_cast<TH1D *>(dataSomma->Clone("histoRapporto")); 
+        // Divido i dati per i valori dei Mc 
+        histoRapporto->Divide(histoMcTotale); 
+    }
+
+    // Aggiustamenti grafici 
+    // Devo settare minimi e massimi perchè c'è un punto lontanissimo 
+    histoRapporto->SetMinimum(0.2); 
+    histoRapporto->SetMaximum(1.8); 
+
+    // Aggiustamento titolo 
+    histoRapporto->GetYaxis()->SetTitle(tipoMuone + "Muons - Data/Mc ratio"); 
+    histoRapporto->GetYaxis()->SetTitleOffset(1.25); 
+    histoRapporto->Draw("EP"); 
+
+    // Salvo il ratio plot
+    TString fileName{outPath + "ratio_plot_" + nomeBasePlots}; 
+    if (rebin) {
+        fileName += "_rebinned";
+    }
+    c1->SaveAs(fileName); 
+
+
     // Cancello i puntatori di cui non ho più bisogno
     delete c1;
     for (int i{0}; i < listaHistMc.size(); ++i) {
         delete listaHistMc[i];
     }
-    delete dataSomma;
+    delete dataSomma, histoRapporto;
 }
