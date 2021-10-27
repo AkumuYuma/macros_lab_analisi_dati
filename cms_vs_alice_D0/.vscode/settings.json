@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "*.h ": "cpp",
+        "*.html": "html",
+        "plot_cmd.C": "cpp",
+        "plot_cms.C": "cpp"
+    }
+}
