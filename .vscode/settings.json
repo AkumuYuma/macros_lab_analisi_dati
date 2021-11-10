@@ -3,6 +3,7 @@
         "*.h ": "cpp",
         "*.html": "html",
         "plot_cms.C": "cpp",
-        "stacked_plot.C": "cpp"
+        "stacked_plot.C": "cpp",
+        "rocmacro.C": "cpp"
     }
 }
