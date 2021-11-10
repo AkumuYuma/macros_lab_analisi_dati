@@ -2,7 +2,7 @@
 #include <string> 
 #include "../funzioni_utili/funzioni.h"
 
-void roc(const TString var1 = "LeptIP3D_worst", const TString var2 = "LeptSTIP_SLIP_worst", const TString extension = "pdf") {
+void roc(const TString var1 = "LeptIP3D_worst", const TString var2 = "LeptSTIP_SLIP_worst", const TString extension = ".png") {
 
     std::string today{utils::currentDate()};
 
