@@ -16,10 +16,10 @@ void roc(const TString var1 = "LeptIP3D_worst", const TString var2 = "LeptSTIP_S
 
 
 
-    TH1D *histoVars[3][2]; // Metterò gli histo per la var1 
+    TH1D *histoVars[3][2]; // Metterò gli isto per la var1 
     // il punto i,j contiene l'isto per il file i, della variabile j
 
-    TH1D *histoVarsRapporto[3][2]; // Meterò gli histo con i rapporti 
+    TH1D *histoVarsRapporto[3][2]; // Isto con i rapporti 
 
 
     int jMax{100}; // Capire perchè 
@@ -109,6 +109,10 @@ void roc(const TString var1 = "LeptIP3D_worst", const TString var2 = "LeptSTIP_S
 
         std::cout << "Fine operazioni su var" << varValue + 1 << "\n"; 
         std::cout << " --------------------------------------------" << std::endl; 
+
+        // ---------------------------- Disegno isto rapporti 
+        gStyle->SetOptStat(0); 
+        
     }
 
 
