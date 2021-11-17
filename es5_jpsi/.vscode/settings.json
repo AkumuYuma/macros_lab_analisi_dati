@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.h ": "cpp",
+        "*.html": "html",
+        "psi_fit.C": "cpp"
+    }
+}

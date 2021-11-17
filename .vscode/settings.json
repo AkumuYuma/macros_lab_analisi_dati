@@ -4,6 +4,8 @@
         "*.html": "html",
         "plot_cms.C": "cpp",
         "stacked_plot.C": "cpp",
-        "rocmacro.C": "cpp"
+        "rocmacro.C": "cpp",
+        "macro.C": "cpp",
+        "psi_fit.C": "cpp"
     }
 }

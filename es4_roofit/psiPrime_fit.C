@@ -14,7 +14,7 @@ void psiPrime_fit() {
   gStyle->SetTitleOffset(1.4, "Y");
   gStyle->SetOptFit(1);
   //
-  TFile* f1 = TFile::Open("./hlt_5_newSoftMuon_alsoInPsiPrimeWind.root","read");
+  TFile* f1 = TFile::Open("./root_files/hlt_5_newSoftMuon_alsoInPsiPrimeWind.root","read");
   //
   /////////////////////////////////////////
   //
@@ -128,7 +128,7 @@ void psiPrime_fit() {
   //
   RooRealVar gamma("#Gamma","Gamma",-1e-1, -2., -1e-2) ;
   bkgExpPdf = new RooExponential("bkgExpPdf","bkgExpPdf",xVar, gamma);
-  RooRealVar nBkgExp("","",120e+3,1.,1e+6);
+  RooRealVar nBkgExp("nbkg","",120e+3,1.,1e+6);
   RooRealVar nSigCB("N_{SIG}","",2e+5,1.,1e+6);
   //
   RooAddPdf* totalCBExpPDF = new RooAddPdf("totalCBExpPDF","totalCBExpPDF", RooArgList(*sigCBPdf, *bkgExpPdf), RooArgList(nSigCB, nBkgExp));

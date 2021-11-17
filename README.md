@@ -7,7 +7,6 @@ alle quali ho applicato alcune modifiche. (Principalmente stilistiche e di refac
 Ogni cartella è un'esercitazione. Ogni cartella contiene un file .C (la macro), una cartella chiamata root_files, in cui vengono letti e scritti i dati,
 e una cartella Plots, in cui vengono salvati i plot generati dalle macro.
 
-# Note sulla 
 
 **TODO** Inserire breve descrizione di ogni esercitazione e pdf
 
@@ -35,7 +34,19 @@ e cms vs alice (che sarebbe il confronto tra i dati). **Grazie a Nicola che ques
 ## Es 4b: Pull
 [Pdf dell'esercitazione](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/Exercise3b.pdf)
 
-## Es 5: Fit con pull (esercitazione con esame 2017)
+## Es 5: Fit spettro J/#Psi
+[Pdf](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/Exercise4-outline.pdf)
+
+## Es 6: Fit con pull (esercitazione con esame 2017)
 [Pdf](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/Traccia-esame-28marzo17.pdf)
 
 
+# Note sulla versione di CINT e root.
+Versione di root locale: 6.22/02 (built from tag, 17 August 2020).
+Versione di root nella macchina remota: 6.14/09 (built from tag, 22 November 2018).
+
+Sono stati trovati alcuni bug nella versione precedente di root. Verranno qui segnalati. I bug non sono stati esplorati, ci si è limitati ad evitarli.
+
+- La classe TH1D * non viene trovata nell'albero di discendenza della classe TObject *. Questo provoca un non funzionamento del dynamic_cast dagli oggetti estratti dai root file ad istogrammi. Per questo
+motivo è stato spesso necessario fare conversioni c-like. Probabilmente basterebbe utilizzare static_cast ma non è stato ancora verificato. Inoltre non si è indagato su quali classi non vengono trovate
+nell'albero oltre a TH1D *
