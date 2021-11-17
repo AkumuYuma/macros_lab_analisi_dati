@@ -6,6 +6,7 @@
         "stacked_plot.C": "cpp",
         "rocmacro.C": "cpp",
         "macro.C": "cpp",
-        "psi_fit.C": "cpp"
+        "psi_fit.C": "cpp",
+        "psiPrime_fit.C": "cpp"
     }
 }

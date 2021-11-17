@@ -12,6 +12,7 @@ e una cartella Plots, in cui vengono salvati i plot generati dalle macro.
 
 # Es 1: Stacked plot
 [Pdf dell'esercitazione](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/esercitazione-1.pdf)
+**Finito**
 
 # Es 2: Cms vs Alice
 **Qui non c'è un pdf dell'esercitaione, ci siamo inventati noi la macro cercando di fare i plot**
@@ -21,6 +22,7 @@ Cms vs Alice da un pptx suo che non sta sul sito.
 Divisa in due parti. Nella prima [cms_vs_alice_solo_cms](./es2_cms_vs_alice_D0/cms_vs_alice_solo_cms) c'è solo il plot dei dati di cms e del rapporto tra MC e dati in cms.
 Nella seconda cartella [cms_vs_alice_completa](./es2_cms_vs_alice_D0/cms_vs_alice_completa) c'è l'esercitazione completa: Ci sono i grafici di alice/cms, cms/alice, (cms-alice)/cms
 e cms vs alice (che sarebbe il confronto tra i dati). **Grazie a Nicola che questa l'ha completata lui**
+**Finito**
 
 # Es 3: Curva roc e test delle ipotesi
 [Pdf dell'esercitazione](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/lezione-roc-higgs-4lept.pdf).
@@ -39,7 +41,11 @@ e cms vs alice (che sarebbe il confronto tra i dati). **Grazie a Nicola che ques
 
 ## Es 6: Fit con pull (esercitazione con esame 2017)
 [Pdf](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/Traccia-esame-28marzo17.pdf)
+**Finito**
 
+## Es 7: Uso dei dati di Es 4 per fittare tutti i bin (da 1 a 23)
+Bisogna riprendere il fit fatto nella Es 4 e questa volta fittare in una volta sola tutti gli istogrammi (da PsiPrimeMass_bin1 a PsiPrimeMass_bin23) e fare un TGraphErrors dove inserire le medie e le sigma fittate.
+Vedere se si riesce a fittare la distribuzione che ne deriva.
 
 # Note sulla versione di CINT e root.
 Versione di root locale: 6.22/02 (built from tag, 17 August 2020).
