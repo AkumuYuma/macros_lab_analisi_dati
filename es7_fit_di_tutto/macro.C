@@ -12,7 +12,7 @@ void macro() {
 
 
     // Numero di istogrammi 
-    int numeroIstogrammi{23}; 
+    int numeroIstogrammi{21}; 
 
     RooDataHist * histoList[numeroIstogrammi];
     
@@ -23,9 +23,9 @@ void macro() {
 
 
     // Carico tutti gli istogrammi in un array 
-    for (int i{1}; i < numeroIstogrammi; ++i) {
+    for (int i{0}; i < numeroIstogrammi - 1; ++i) {
 
-        std::string nomeStringa{"PsiPrimeMass_bin" + std::to_string(i + 1)}; 
+        std::string nomeStringa{"PsiPrimeMass_bin" + std::to_string(i + 2)}; 
         const char * nome{nomeStringa.c_str()};
 
         RooRealVar x{"x", "x", 3.4, 3.9}; 
@@ -37,22 +37,22 @@ void macro() {
         xFrame->SetTitle(nome); 
 
         // Segnale CB 
-        RooRealVar meanCB{"meanCB", "meanCB", 3.7, 3.64, 3.72}; // Media
-        RooRealVar sigmaCB{"sigmaCB", "sigmaCB", 0.05, 0.001, 0.2}; // Sigma
+        RooRealVar meanCB{"meanCB", "meanCB", 3.675, 3.64, 3.72}; // Media
+        RooRealVar sigmaCB{"sigmaCB", "sigmaCB", 0.04, 0.001, 0.7}; // Sigma
         RooRealVar alpha{"alpha", "alpha", 5, 0.01, 50};
-        RooRealVar nCB{"nCB", "nCB", 5, 0.01, 50};
+        RooRealVar nCB{"nCB", "nCB", 5, 0.001, 20};
         // Pdf
         RooCBShape cbPdf{"cbPdf", "cbPdf", x, meanCB, sigmaCB, alpha, nCB};
 
         // Bkg cheby 
-        RooRealVar c0{"c0", "1st coeff", -0.3, -1e4, 1e4};
-        RooRealVar c1{"c1", "2nd coeff", 0.01, -1e4, 1e4};
+        RooRealVar c0{"c0", "1st coeff", -0.3, -1000, 100};
+        RooRealVar c1{"c1", "2nd coeff", 0.1, -1000, 100};
         RooChebychev chebyPdf{"cheby", "Chebychev", x, RooArgList(c0, c1)};
 
         // Total pdf 
         // Componenti
-        RooRealVar nSig{"nSig", "Number of signal cands", 4e5, 1e3, 1e7};
-        RooRealVar nBkg{"nBjg", "Number of bkg component", 60e3, 1e3, 1e7};
+        RooRealVar nSig{"nSig", "Number of signal cands", 4e5, 1e2, 1e8};
+        RooRealVar nBkg{"nBjg", "Number of bkg component", 60e3, 1e2, 1e8};
 
         RooAddPdf totalPdf{"totalPdf", "totalPdf", RooArgList(cbPdf, chebyPdf), RooArgList(nSig, nBkg)};
 
@@ -85,13 +85,26 @@ void macro() {
     }
 
 
+    // Rapidità (sta scritto nel titolo dell'histo nel file root)
+    double rapidity[numeroIstogrammi]; 
+    rapidity[0] = -2.1; 
+    double errorR[numeroIstogrammi]; 
+    for (int i{1}; i < numeroIstogrammi; ++i) {
+        rapidity[i] = rapidity[i - 1] + 0.2;
+        errorR[i] = 0.1;
+    }
+
     // TGraph con i risultati 
     TCanvas myC{"myC", "myC", 800, 600}; 
-    TGraphErrors graph{22, meanList, sigmaList, meanErrorList, sigmaErrorList}; 
+    
+    TGraphErrors graph{21, rapidity, sigmaList, errorR, sigmaErrorList}; 
     graph.SetTitle("Sigma vs Rapidity"); 
     graph.SetMarkerStyle(20); 
     graph.SetMarkerColor(kRed); 
-    graph.GetXaxis()->SetLimits(3.665, 3.69); 
+    graph.SetMinimum(0.02); 
+    graph.SetMaximum(0.1); 
+    graph.Fit("pol2"); 
+    gStyle->SetOptFit(1111); 
     graph.Draw("ap"); 
     myC.SaveAs("./Plots/Graph.png"); 
 
