@@ -35,4 +35,7 @@ e cms vs alice (che sarebbe il confronto tra i dati). **Grazie a Nicola che ques
 ## Es 4b: Pull
 [Pdf dell'esercitazione](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/Exercise3b.pdf)
 
+## Es 5: Fit con pull (esercitazione con esame 2017)
+[Pdf](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/Traccia-esame-28marzo17.pdf)
+
 
