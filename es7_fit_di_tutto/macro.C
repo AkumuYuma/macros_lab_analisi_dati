@@ -39,8 +39,8 @@ void macro() {
         // Segnale CB 
         RooRealVar meanCB{"meanCB", "meanCB", 3.675, 3.64, 3.72}; // Media
         RooRealVar sigmaCB{"sigmaCB", "sigmaCB", 0.04, 0.001, 0.7}; // Sigma
-        RooRealVar alpha{"alpha", "alpha", 5, 0.01, 50};
-        RooRealVar nCB{"nCB", "nCB", 5, 0.001, 20};
+        RooRealVar alpha{"alpha", "alpha", 5.0, 0.01, 50.};
+        RooRealVar nCB{"nCB", "nCB", 3.0, 0.001, 20.};
         // Pdf
         RooCBShape cbPdf{"cbPdf", "cbPdf", x, meanCB, sigmaCB, alpha, nCB};
 
@@ -75,11 +75,10 @@ void macro() {
         totalPdf.plotOn(xFrame, rf::Components(chebyPdf), rf::LineStyle(kDashed));
         xFrame->Draw(); 
 
-        std::string nomeFileStringa{"./Plots/fit_" + std::to_string(i + 1) + ".png"};
+        std::string nomeFileStringa{"./Plots/fit_" + std::to_string(i + 2) + ".png"};
         const char * nomeFile{nomeFileStringa.c_str()};
         myC.SaveAs(nomeFile); 
         
-
         delete xFrame; 
         delete daAggiungere;
     }
@@ -103,6 +102,8 @@ void macro() {
     graph.SetMarkerColor(kRed); 
     graph.SetMinimum(0.02); 
     graph.SetMaximum(0.1); 
+    TF1 f1{"f1", "pol2", -2.5, 2.5}; 
+    f1.SetParameters(0.08, 0.08, 0); 
     graph.Fit("pol2"); 
     gStyle->SetOptFit(1111); 
     graph.Draw("ap"); 

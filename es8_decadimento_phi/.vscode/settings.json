@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "*.h ": "cpp",
+        "*.html": "html",
+        "macro.C": "cpp",
+        "phiKK_fit.C": "cpp",
+        "myRapidity.C": "cpp"
+    }
+}
