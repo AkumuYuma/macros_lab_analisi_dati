@@ -46,10 +46,53 @@ Quindi creo una variabile di tipo string e la inizializzo con il nome che voglio
 **Finito**
 
 # Es 4: Fit con roofit
+Pdf su RooFit: 
+[Lezione 1](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/Verkerke-RooFit-part1.pdf)
+[Lezione 2](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/Verkerke-RooFit-part2.pdf)
+[Lezione 3](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/Verkerke-RooFit-part3.pdf)
 
+## Appunti su roofit 
+Classi più usate: 
+- `RooRealVar` -> Rappresenta una variabile reale.
+    La classe `RooRealVar` rappresenta una variabile. Il costruttore che lui usa più spesso è: 
+    ```cpp 
+    RooRealVar (const char *name, const char *title, Double_t value, Double_t minValue, Double_t maxValue, const char *unit="")
+    ```
+    Il name è la stringa con cui viene salvata in memoria, invece il titolo è quello che viene scritto. Gli altri argomenti sono il valore iniziale e poi gli estremi.
+
+    Metodi più usati: 
+        - `frame()` -> Crea un nuovo oggetto di tipo `RooPlot` nella heap memory (quindi un puntatore classico) **inizializzato per questo oggetto** ma senza plot. Ha senso quindi fare `oggettoDaPlottare->PlotOn(x.frame())`. 
+        Puoi usare il metodo tutte le volte che vuoi e ogni volta ottieni un **nuovo** `RooPlot *`. 
+        **Attenzione: Il chiamante del metodo ha la responsabilità di eliminare dalla heap l'oggetto di tipo `RooPlot` restituito.**
+        
+        - `setBins(Int_t nBins)` -> Crea un binnaggio uniforme per la variabile. 
+
+- `RooPlot` -> Rappresenta un frame per i plot 
+    Puoi usare il metodo `Draw()` per disegnare gli oggetti su di esso. 
+
+- `RooDataHist` -> Rappresenta un istogramma. 
+    Diversi costruttori, gli argomenti importanti sono: 
+    ```cpp
+    RooDataHist (std::string_view name, std::string_view title, const RooArgList &vars, const TH1 *hist, Double_t initWgt=1.0)
+    ```
+    Posso creare un RooDataHist da un istogramma normale(`const TH1 *`). 
+    Il costruttore prende anche una `RooRealVar` come variabile dell'istogramma. 
+
+    Nota che lui crea un `RooDataHist` nell'[esercitazione 4a](./es4_roofit/psiPrime_fit.C:35). 
+    In quel caso al posto del costruttore scritto sopra, ne usa un altro in cui passa un `RooCmdArg` al post del `TH1 *`. Per fare questo è necessario convertire l'istogramma in `RooCmdArg` e per questo usa `Import`. 
+
+- `Import` -> Credo sia una funzione di RooFit. Restituisce un oggetto della classe `RooCmdArg`. Permette di importare gli oggetti tipo `TH1` (ma non solo) per convertirli in `RooDataHist`. 
+- `RooArgList` -> E' un oggetto container che tiene diversi oggetti di tipo `RooAbsArg` (e le classi che derivano da essa). 
+    Esempio: Creazione di una pdf somma di due pdf: 
+    ```cpp
+    RooAddPdf* totalPDF = new RooAddPdf("totalPDF", "totalPDF", RooArgList(sigPDF, bkgPDF), RooArgList(nSig, nBkg));
+    ```
+    Il costruttore di `RooAddPdf` prende una `RooArgList` che indichi la lista di pdf da sommare e una `RooArgList` che indichi la lista dei pesi. 
+
+- `RooArgSet` -> Dovrebbe funzionare più o meno come `RooArgList`
 ## Es 4a: Fit con gaussiana + fondo con roofit
 [Pdf dell'esercitazione](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/esercitazione-roofit-invmass.pdf).
-[Pdf su Migrad, Hesse e Minos](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/esercitazione-roofit-invmass.pdf).
+[Pdf su Migrad, Hesse e Minos](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/Approfondimento3.pdf).
 
 ## Es 4b: Pull
 [Pdf dell'esercitazione](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/Exercise3b.pdf)

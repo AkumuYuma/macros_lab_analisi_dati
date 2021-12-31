@@ -2,6 +2,7 @@
 // run with root: .x psiPrime_fit.C
 ///////////////////////////////////
 #include <vector>
+#include <TH1.h>
 
 //gROOT->Reset();
 //gROOT->Clear();
@@ -10,80 +11,75 @@
 using namespace RooFit;
 
 void psiPrime_fit() {
-  gROOT->ForceStyle();
-  gStyle->SetTitleOffset(1.4, "Y");
+
+  gStyle->SetTitleOffset(1.4, "Y"); // Il secondo parametro è l'asse su cui fare l'offset 
   gStyle->SetOptFit(1);
-  //
+
+  gROOT->ForceStyle(); // Questo forza la lettura e scrittura su file con gli attributi grafici presenti 
   TFile* f1 = TFile::Open("./root_files/hlt_5_newSoftMuon_alsoInPsiPrimeWind.root","read");
-  //
-  /////////////////////////////////////////
-  //
-  TH1F* hPsiPrime;
-  //
-  //hPsiPrime = (TH1F*) f1->Get("PsiPrimeMass_bin8");
-  hPsiPrime = (TH1F*) f1->Get("PsiPrimeMass_bin9");
-  //
-  TCanvas *myC = new TCanvas("myC","PsiPrimeMassPlot", 700, 700);
-  //
+
+
+  TH1F* hPsiPrime = dynamic_cast<TH1F*>(f1->Get("PsiPrimeMass_bin9"));
+
   Double_t xMin = hPsiPrime->GetXaxis()->GetXmin();
   Double_t xMax = hPsiPrime->GetXaxis()->GetXmax();
-  Int_t nBins = hPsiPrime->GetNbinsX();
+  Int_t nBins = hPsiPrime->GetNbinsX(); // Salvo il numero di bin 
 
+  TCanvas *myC = new TCanvas("myC","PsiPrimeMassPlot", 700, 700);
+
+  // Creo una variabile che rappresenti la massa 
   RooRealVar xVar("xVar", "m(#mu^{+}#mu^{-}) [GeV/c^{2}]", xMin, xMax);
+  // Rendo la variabile reale binnata. 
   xVar.setBins(nBins);
 
   RooDataHist* MuMuHist = new RooDataHist("#mu#mu_hist", hPsiPrime->GetTitle(), RooArgSet(xVar), Import(*hPsiPrime,kFALSE));
 
+  // PDF SEGNALE (Gaussiana)
+  // Parametri: 
   // Il primo parametro numerico è il valore iniziale, il secondo è e il terzo sono i limiti
   RooRealVar mG("mean", "mean", 3.62, 3.60, 3.75); // Valore della media. Fisso il valore iniziale del parametro
   RooRealVar sigma1("#sigma_{1}", "sigma1", 0.02, 0.001, 0.1); // Valore della sigma
-  //
-  // RooRealVar sigma2("#sigma_{2}", "sigma2", 0.02, 0.001, 0.1);
-  //
-  // RooGaussian sig1PDF("sig1PDF", "Signal component 1", xVar, mG, sigma1);
-  // RooGaussian sig2PDF("sig2PDF", "Signal component 2", xVar, mG, sigma2);
-  // RooRealVar ratio("sig1frac", "fraction of component 1 in signal", 0.5, 0, 1);
-  // RooAddPdf sigPDF("sigPDF", "Signal", RooArgList(sig1PDF, sig2PDF), ratio);
-  //
+
+  //  pdf 
   RooGaussian sigPDF("sigPDF", "Signal", xVar, mG, sigma1);
-  //
+
+  // PDF background
+  // Parametri: 
   RooRealVar c1("c_{1}", "c1", -0.1 ,-10, 10);
   RooRealVar c2("c_{2}", "c2", -0.1 ,-10, 10);
+  // pdf 
   RooChebychev bkgPDF("bkgPDF", "bkgPDF", xVar, RooArgSet(c1,c2));
-  //
+
+  // Sovrappongo con i pesi 
   RooRealVar nSig("nSig", "Number of signal candidates ", 2e+5, 1., 1e+6);
   RooRealVar nBkg("nBkg", "Bkg component", 120e+3, 1., 1e+6);
-  //
-  RooAddPdf* totalPDF = new RooAddPdf("totalPDF", "totalPDF", RooArgList(sigPDF, bkgPDF), RooArgList(nSig, nBkg));
-  //
-  // totalPDF->fitTo(*MuMuHist, Extended(kTRUE));  // Con questo fitta con Hesse
-  //
+
+  // Creo la pdf somma 
+  RooArgList listaPdf{sigPDF, bkgPDF}; 
+  RooArgList listaPesi{nSig, nBkg}; 
+  RooAddPdf* totalPDF = new RooAddPdf("totalPDF", "totalPDF", listaPdf, listaPesi);
+
+  // Fitting 
   totalPDF->fitTo(*MuMuHist, Extended(kTRUE), Minos(kTRUE)); // Con questo fitta con Minos
-  //
+
+  // Plotting
   RooPlot* xframe = xVar.frame();
   xframe->SetTitle( hPsiPrime->GetTitle() );
   xframe->SetYTitle("Candidates / 10 MeV/c^{2}");
-  //xframe->SetTitleOffset(1.45,"Y");
-  //
+
   MuMuHist->plotOn(xframe);
+
   totalPDF->plotOn(xframe);
-  //
   totalPDF->plotOn(xframe, Components(RooArgSet(sigPDF)), LineColor(kRed));  // Plotta la componente di segnale
-  // totalPDF->plotOn(xframe, Components(RooArgSet(sig1PDF)), LineColor(kRed));
-  // totalPDF->plotOn(xframe, Components(RooArgSet(sig2PDF)), LineColor(kMagenta));
-  totalPDF->plotOn(xframe, Components(RooArgSet(bkgPDF)), LineColor(kGreen), LineStyle(kDashed) ); // Plotta la componenete di pdf
-  //
+  totalPDF->plotOn(xframe, Components(RooArgSet(bkgPDF)), LineColor(kGreen), LineStyle(kDashed) ); // Plotta la componenete di background 
 
   // Riscrive la pdf.
   // Se devi fare il pull questa riga deve essere l'ultima a fare plotOn così quando usi il metodo pullHist() fa gli scarti con questo
   totalPDF->plotOn(xframe); // non necessario: il fondo e' tratteggiato
-  //
-  //
+
+  // Scrivo i parametri 
   totalPDF->paramOn(xframe, Parameters(RooArgSet(mG,sigma1,nSig)), Layout(0.52,0.99,0.9)); //box con stime parametri
-  //totalPDF->paramOn(xframe, Parameters(RooArgSet(mG,sigma1,sigma2)), Layout(0.6,0.99,0.9));
-  //
-  //xframe->getAttText()->SetTextSize(0.03);
-  //
+
   myC->cd();
 
   //  ------------------------------ Parte sulle pull (esercitazione 4B)
