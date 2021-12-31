@@ -61,11 +61,11 @@ Classi più usate:
     Il name è la stringa con cui viene salvata in memoria, invece il titolo è quello che viene scritto. Gli altri argomenti sono il valore iniziale e poi gli estremi.
 
     Metodi più usati: 
-        - `frame()` -> Crea un nuovo oggetto di tipo `RooPlot` nella heap memory (quindi un puntatore classico) **inizializzato per questo oggetto** ma senza plot. Ha senso quindi fare `oggettoDaPlottare->PlotOn(x.frame())`. 
-        Puoi usare il metodo tutte le volte che vuoi e ogni volta ottieni un **nuovo** `RooPlot *`. 
-        **Attenzione: Il chiamante del metodo ha la responsabilità di eliminare dalla heap l'oggetto di tipo `RooPlot` restituito.**
+    - `frame()` -> Crea un nuovo oggetto di tipo `RooPlot` nella heap memory (quindi un puntatore classico) **inizializzato per questo oggetto** ma senza plot. Ha senso quindi fare `oggettoDaPlottare->PlotOn(x.frame())`. 
+    Puoi usare il metodo tutte le volte che vuoi e ogni volta ottieni un **nuovo** `RooPlot *`. 
+    **Attenzione: Il chiamante del metodo ha la responsabilità di eliminare dalla heap l'oggetto di tipo `RooPlot` restituito.**
         
-        - `setBins(Int_t nBins)` -> Crea un binnaggio uniforme per la variabile. 
+    - `setBins(Int_t nBins)` -> Crea un binnaggio uniforme per la variabile. 
 
 - `RooPlot` -> Rappresenta un frame per i plot 
     Puoi usare il metodo `Draw()` per disegnare gli oggetti su di esso. 
@@ -78,7 +78,7 @@ Classi più usate:
     Posso creare un RooDataHist da un istogramma normale(`const TH1 *`). 
     Il costruttore prende anche una `RooRealVar` come variabile dell'istogramma. 
 
-    Nota che lui crea un `RooDataHist` nell'[esercitazione 4a](./es4_roofit/psiPrime_fit.C:35). 
+    Nota che lui crea un `RooDataHist` nell'[esercitazione 4a](./es4_roofit/psiPrime_fit.C#L35). 
     In quel caso al posto del costruttore scritto sopra, ne usa un altro in cui passa un `RooCmdArg` al post del `TH1 *`. Per fare questo è necessario convertire l'istogramma in `RooCmdArg` e per questo usa `Import`. 
 
 - `Import` -> Credo sia una funzione di RooFit. Restituisce un oggetto della classe `RooCmdArg`. Permette di importare gli oggetti tipo `TH1` (ma non solo) per convertirli in `RooDataHist`. 
