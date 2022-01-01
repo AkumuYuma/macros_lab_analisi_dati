@@ -93,8 +93,7 @@ Classi più usate:
 - `RooGaussian` -> Rappresenta la gaussiana. Tutte le distribuzioni ereditano dalla classe `RooAbsPdf` (anche `RooAddPdf`). 
     Metodi importanti: 
     - `fitTo(RooAbsData & data, const RooLinkedList & cmdList)` -> Fitta la pdf al dataset (data). Il fit viene fatto ML unbinned o binned a seconda del dataset. Di default il fit viene fatto facendo MIGRAD, HESSE e MINOS in successione. Comunque basta passare le opzioni. 
-    Restituisce un `RooFitResult *`
-    Esempio: 
+    Restituisce un `RooFitResult *`. Esempio: 
     ```cpp 
     totalPDF->fitTo(*MuMuHist, Extended(kTRUE), Minos(kTRUE)); 
     ```
@@ -102,8 +101,12 @@ Classi più usate:
     **Nota: Perchè passo *MuMuHist e non MuMuHist (cioè passo l'oggetto puntato e non il puntatore)?** 
     Il metodo `fitTo()` prende come primo argomento un tipo `RooAbsData &`, cioè una reference a un `RooAbsData` (la reference è un modo intelligente per evitare la copia dei dati durante la chiamata in una funzione e senza usare i puntatori). Quindi ho bisogno di un oggetto di tipo `RooAbsData` e non un `RooAbsData *`, quindi devo passare il puntatore deferenziato (*MuMuHist) e non il puntatore stesso (MuMuHist). 
     
-    - `plotOn(RooPlot * frame, RooLinkedList & cmdList)` -> Plotta la pdf sul frame (preparato per la variabile da cui ho estratto il frame). Si possono usare una serie di opzioni, di seguito alcune: 
+    - `plotOn(RooPlot * frame, RooLinkedList & cmdList)` -> Plotta la pdf sul frame (preparato per la variabile da cui ho estratto il frame). Si possono usare una serie di opzioni. 
+
+    - `paramOn(RooPlot * frmae, RooLinkedList & cmdList)` -> Aggiunge un box con i parametri da mostrare, di seguito alcune delle opzioni: 
     ![](./immagini_readme/opzioni_plot.png)
+
+    Tutte le opzioni per i vari metodi si possono trovare su [questa pagina](https://root.cern.ch/doc/master/classRooAbsPdf.html#af43c48c044f954b0e0e9d4fe38347551)
 
 ## Es 4a: Fit con gaussiana + fondo con roofit
 [Pdf dell'esercitazione](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/esercitazione-roofit-invmass.pdf).
