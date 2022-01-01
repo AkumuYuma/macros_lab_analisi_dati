@@ -68,7 +68,14 @@ Classi più usate:
     - `setBins(Int_t nBins)` -> Crea un binnaggio uniforme per la variabile. 
 
 - `RooPlot` -> Rappresenta un frame per i plot 
-    Puoi usare il metodo `Draw()` per disegnare gli oggetti su di esso. 
+
+    Metodi importanti: 
+    - `Draw()` -> Per disegnare gli oggetti nel canvas. (Più spesso in questi contesti si usa il metodo `plotOn()` delle `RooAbsPdf`)
+
+    - `pullHist()`
+    
+    - `addObject()`
+    
 
 - `RooDataHist` -> Rappresenta un istogramma. 
     Diversi costruttori, gli argomenti importanti sono: 
@@ -82,7 +89,9 @@ Classi più usate:
     In quel caso al posto del costruttore scritto sopra, ne usa un altro in cui passa un `RooCmdArg` al post del `TH1 *`. Per fare questo è necessario convertire l'istogramma in `RooCmdArg` e per questo usa `Import`. 
 
 - `Import` -> Credo sia una funzione di RooFit. Restituisce un oggetto della classe `RooCmdArg`. Permette di importare gli oggetti tipo `TH1` (ma non solo) per convertirli in `RooDataHist`. 
+
 - `RooArgList` -> E' un oggetto container che tiene diversi oggetti di tipo `RooAbsArg` (e le classi che derivano da essa). 
+
     Esempio: Creazione di una pdf somma di due pdf: 
     ```cpp
     RooAddPdf* totalPDF = new RooAddPdf("totalPDF", "totalPDF", RooArgList(sigPDF, bkgPDF), RooArgList(nSig, nBkg));
@@ -90,6 +99,7 @@ Classi più usate:
     Il costruttore di `RooAddPdf` prende una `RooArgList` che indichi la lista di pdf da sommare e una `RooArgList` che indichi la lista dei pesi. 
 
 - `RooArgSet` -> Dovrebbe funzionare più o meno come `RooArgList`. 
+
 - `RooGaussian` -> Rappresenta la gaussiana. Tutte le distribuzioni ereditano dalla classe `RooAbsPdf` (anche `RooAddPdf`). 
 
     Metodi importanti: 
@@ -117,8 +127,12 @@ Classi più usate:
 [Pdf dell'esercitazione](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/esercitazione-roofit-invmass.pdf).
 [Pdf su Migrad, Hesse e Minos](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/Approfondimento3.pdf).
 
+Abbiamo fittato l'istogramma PsiPrimeMass_bin9 dal [file](./root_files/hlt_5_newSoftMuon_alsoInPsiPrimeWind.root) prima con gaussiana e chebychev e poi con gaussiana ed esponenziale. 
+
 ## Es 4b: Pull
 [Pdf dell'esercitazione](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/Exercise3b.pdf)
+
+Utilizzato il codice dell'esercitazione 4a per aggiungere i pull dei due fit e scegliere il fit migliore del background. 
 
 # Es 5: Fit spettro J/#Psi
 [Pdf](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/Exercise4-outline.pdf)
