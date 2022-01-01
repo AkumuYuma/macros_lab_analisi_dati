@@ -91,6 +91,7 @@ Classi più usate:
 
 - `RooArgSet` -> Dovrebbe funzionare più o meno come `RooArgList`. 
 - `RooGaussian` -> Rappresenta la gaussiana. Tutte le distribuzioni ereditano dalla classe `RooAbsPdf` (anche `RooAddPdf`). 
+
     Metodi importanti: 
     - `fitTo(RooAbsData & data, const RooLinkedList & cmdList)` -> Fitta la pdf al dataset (data). Il fit viene fatto ML unbinned o binned a seconda del dataset. Di default il fit viene fatto facendo MIGRAD, HESSE e MINOS in successione. Comunque basta passare le opzioni. 
     Restituisce un `RooFitResult *`.
