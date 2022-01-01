@@ -54,7 +54,8 @@ Pdf su RooFit:
 ## Appunti su roofit 
 Classi più usate: 
 - `RooRealVar` -> Rappresenta una variabile reale.
-    La classe `RooRealVar` rappresenta una variabile. Il costruttore che lui usa più spesso è: 
+
+    Il costruttore che lui usa più spesso è: 
     ```cpp 
     RooRealVar (const char *name, const char *title, Double_t value, Double_t minValue, Double_t maxValue, const char *unit="")
     ```
