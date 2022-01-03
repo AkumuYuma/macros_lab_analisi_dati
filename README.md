@@ -15,13 +15,15 @@ e una cartella Plots, in cui vengono salvati i plot generati dalle macro.
 **Finito**
 
 # Es 2: Cms vs Alice
-**Qui non c'è un pdf dell'esercitaione, ci siamo inventati noi la macro cercando di fare i plot**
-[Cms vs FONLL](https://arxiv.org/pdf/2107.01476v1.pdf) -> figura 5 a pagina 13.
+**Qui non c'è un pdf dell'esercitazione, ci siamo inventati noi la macro cercando di fare i plot**
+
+Bisognava riprodurre i plot di questo pdf: [Cms vs FONLL](https://arxiv.org/pdf/2107.01476v1.pdf) -> figura 5 a pagina 13.
 Cms vs Alice da un pptx suo che non sta sul sito.
 
 Divisa in due parti. Nella prima [cms_vs_alice_solo_cms](./es2_cms_vs_alice_D0/cms_vs_alice_solo_cms) c'è solo il plot dei dati di cms e del rapporto tra MC e dati in cms.
 Nella seconda cartella [cms_vs_alice_completa](./es2_cms_vs_alice_D0/cms_vs_alice_completa) c'è l'esercitazione completa: Ci sono i grafici di alice/cms, cms/alice, (cms-alice)/cms
-e cms vs alice (che sarebbe il confronto tra i dati). **Grazie a Nicola che questa l'ha completata lui**
+e cms vs alice (che sarebbe il confronto tra i dati). **Grazie Nicola, questa l'ha finita lui**
+
 **Finito**
 
 # Es 3: Curva roc e test delle ipotesi
