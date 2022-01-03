@@ -8,6 +8,7 @@
         "macro.C": "cpp",
         "psi_fit.C": "cpp",
         "psiPrime_fit.C": "cpp",
-        "myRapidity.C": "cpp"
+        "myRapidity.C": "cpp",
+        "psi_prime_factory.C": "cpp"
     }
 }

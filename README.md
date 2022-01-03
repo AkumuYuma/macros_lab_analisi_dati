@@ -27,6 +27,7 @@ e cms vs alice (che sarebbe il confronto tra i dati). **Grazie a Nicola che ques
 # Es 3: Curva roc e test delle ipotesi
 [Pdf dell'esercitazione](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/lezione-roc-higgs-4lept.pdf).
 
+
 ## NOTA: sulla conversione tra stringhe c++ e stringhe c-like.
 In questa macro si presenta la necessità di creare una stringa fatta così "hVar1Ratio[i]" dove al posto della i devo mettere il numero. Quindi è necessario fare un'operazione complessa di gestione e concatenazione di stringhe. Questo è facile con i metodi delle stringhe della libreria std. Il costruttore di TH1D (e in generale tutti i metodi che in root vogliono le stringhe), però, prende un tipo const char *, cioè una stringa c-like, o al più una TString.
 Per risolvere il problema lui faceva così
@@ -73,9 +74,9 @@ Classi più usate:
     Metodi importanti: 
     - `Draw()` -> Per disegnare gli oggetti nel canvas. (Più spesso in questi contesti si usa il metodo `plotOn()` delle `RooAbsPdf`)
 
-    - `pullHist()`
+    - `pullHist()` -> Restituisce un istogramma con le differenze tra l'istogramma plottato sul frame e **l'ultima** pdf plottata sul frame. 
     
-    - `addObject()`
+    - `addObject()` -> Aggiunge un oggetto al frame per disegnarlo. Prende come argomento un `TObject *`. 
     
 
 - `RooDataHist` -> Rappresenta un istogramma. 
@@ -124,17 +125,23 @@ Classi più usate:
 
     Tutte le opzioni per i vari metodi si possono trovare su [questa pagina](https://root.cern.ch/doc/master/classRooAbsPdf.html#af43c48c044f954b0e0e9d4fe38347551)
 
+- `RooFitResult` -> Rappresenta i risultati del fit. Oggetto restituito dal metodo `fitTo()`. 
+    
+    Metodi principali: 
+    - `Print()` -> stampa i risultati del fit a schermo 
+    - `correlationMatrix()` -> Restituisce la matrice di correlazione (a sua volta puoi fare `r->correlationMatrix().Print()`). 
 ## Es 4a: Fit con gaussiana + fondo con roofit
 [Pdf dell'esercitazione](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/esercitazione-roofit-invmass.pdf).
 [Pdf su Migrad, Hesse e Minos](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/Approfondimento3.pdf).
 
-Abbiamo fittato l'istogramma PsiPrimeMass_bin9 dal [file](./root_files/hlt_5_newSoftMuon_alsoInPsiPrimeWind.root) prima con gaussiana e chebychev e poi con gaussiana ed esponenziale. 
+Abbiamo fittato l'istogramma PsiPrimeMass_bin9 dal [file](./root_files/hlt_5_newSoftMuon_alsoInPsiPrimeWind.root) prima con gaussiana e chebychev e poi con crystal ball ed esponenziale. 
 
 ## Es 4b: Pull
 [Pdf dell'esercitazione](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/Exercise3b.pdf)
 
 Utilizzato il codice dell'esercitazione 4a per aggiungere i pull dei due fit e scegliere il fit migliore del background. 
 
+**Finito**
 # Es 5: Fit spettro J/#Psi
 [Pdf](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/Exercise4-outline.pdf)
 
