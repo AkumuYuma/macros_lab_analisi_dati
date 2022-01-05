@@ -15,7 +15,7 @@ void macro(bool fixedTails = true, const TString bkg = "exp", const TString exte
     myC->SetBottomMargin(0.41); myC->SetTopMargin(0.05);
 
     TFile f{"./root_files/histo-esame28Marzo2017.root", "READ"}; 
-    TH1D * histo{(TH1D *)f.Get("chic")}; 
+    TH1D * histo{(TH1D *)f.Get("chic")}; // Sempre il problema della conversione sulla macchina remota  
 
     RooRealVar x{"x", "x", 3.4, 3.6}; 
 
@@ -26,7 +26,7 @@ void macro(bool fixedTails = true, const TString bkg = "exp", const TString exte
     xFrame->SetYTitle("Counts");
     xFrame->SetXTitle("m()");
 
-    rfHisto.plotOn(xFrame); // E poi plotti l'histogramma sul frame generato dalla variabile
+    rfHisto.plotOn(xFrame); // E poi plotti l'histogramma sul frame generato per la variabile
 
 
     // --------- Fit 
@@ -47,17 +47,19 @@ void macro(bool fixedTails = true, const TString bkg = "exp", const TString exte
     RooRealVar sigmaCB2{"sigmaCB2", "sigmaCB2", 0.01, 0.0001, 0.1}; // Sigma
     RooRealVar alpha2{"alpha2", "alpha2", 1, 0.00001, 10000};
     RooRealVar nCB2{"nCB2", "nCB2", 1, 0.0001, 10000};
-    // Pdf 
+
+    // Code fissate o no 
     if (fixedTails) 
         // Fisso le code 
         alpha2 = alpha1; 
         nCB2 = nCB1; 
     
+    // Pdf 
     RooCBShape cb2Pdf{"cb2Pdf", "cb2Pdf", x, meanCB2, sigmaCB2, alpha2, nCB2};
     
     // Fondo
     // Devo per forza definire entrambe le pdf e poi usare solo quella scelta dall'utente
-    // Questo perchè non è possibile determinare il tipo di una variabile a run-time (cioè dentro un if) 
+    // Questo perchè in C++ non è possibile determinare il tipo di una variabile a run-time (cioè dentro un if) 
 
     // Fondo exp 
     RooRealVar c{"c", "c", -1, -100, 1};
@@ -70,12 +72,13 @@ void macro(bool fixedTails = true, const TString bkg = "exp", const TString exte
 
     // Pdf Totale 
     // Componenti
-    RooRealVar nSig1{"nSig", "Number of signal cands", 1e3, 1, 1e7};
+    RooRealVar nSig1{"nSig", "Segnale 1", 1e3, 1, 1e7};
     RooRealVar nSig2{"nSig2", "Segnale 2", 1e3, 1, 1e8};
-    RooRealVar nBkg{"nBjg", "Number of bkg component", 120e3, 1, 1e8};
+    RooRealVar nBkg{"nBkg", "Background", 120e3, 1, 1e8};
 
     // Definisco la pdf totale 
-    // La definisco come un generico puntatore a una RooAddPdf 
+    // La definisco come un generico puntatore a una RooAddPdf e poi la specializzo a seconda della scelta dell'utente 
+    // Nota che questo giochetto funziona solo se usi il puntatore, non funziona con gli oggetti statici (mi sa ma non sono sicuro)
     RooAddPdf * totalPdf; 
     if (bkg == "exp") {
         // La inizializzo in base al background scelto
@@ -90,22 +93,29 @@ void macro(bool fixedTails = true, const TString bkg = "exp", const TString exte
         exit(1); 
     }
 
-    // Disegno 
+    // Fit  
     totalPdf->fitTo(rfHisto, Extended(kTRUE));
+    // Plot 
     totalPdf->plotOn(xFrame, rf::LineColor(kRed));
-    totalPdf->plotOn(xFrame, rf::Components(RooArgSet(cb1Pdf)), rf::LineColor(kGreen));
-    totalPdf->plotOn(xFrame, rf::Components(cb2Pdf), rf::LineColor(kCyan)); // Gaussiana a destra
+    totalPdf->plotOn(xFrame, rf::Components(RooArgSet(cb1Pdf)), rf::LineColor(kGreen)); // CB a sinistra
+    totalPdf->plotOn(xFrame, rf::Components(cb2Pdf), rf::LineColor(kCyan)); // CB a destra
 
     // Scelgo quale fondo fittare 
     if (bkg == "exp") totalPdf->plotOn(xFrame, rf::Components(expPdf), rf::LineStyle(kDashed));
     else if (bkg == "cheby") totalPdf->plotOn(xFrame, rf::Components(chebyPdf), rf::LineStyle(kDashed));
 
     totalPdf->plotOn(xFrame, rf::LineColor(kRed)); // Correzione per i pull
-    totalPdf->paramOn(xFrame, Parameters(RooArgSet(meanCB1, sigmaCB1, nSig1, meanCB2, sigmaCB2, nSig2)), Layout(0.1, 0.4)) ; 
+    totalPdf->paramOn(xFrame, Parameters(RooArgSet(meanCB1, sigmaCB1, nSig1, meanCB2, sigmaCB2, nSig2)), Layout(0.6, 0.9, 0.9)) ; 
+    xFrame->getAttText()->SetTextSize(0.02); 
 
     // -------------------- Pull 
+    
+    // Salvo l'istogramma con le pull in una variabile (lo fitterò con una gaussiana)
     RooHist * rooHisto_pull{xFrame->pullHist()}; 
-    RooPlot * pullFrame{x.frame("")};
+
+    // Creo un nuovo frame per le pull sempre a partire dalla variabile x
+    // Su xFrame c'è già tutta la roba fittata, invece così ne faccio uno nuovo 
+    RooPlot * pullFrame{x.frame()}; 
     pullFrame->addObject(rooHisto_pull, "p");
     pullFrame->SetTitle("");
     pullFrame->SetYTitle("Pulls bin-by-bin");
@@ -115,10 +125,15 @@ void macro(bool fixedTails = true, const TString bkg = "exp", const TString exte
 
     myC->Divide(1, 2);
 
+    // Disegno l'istogramma con i dati 
+    myC->cd(1); 
+    gPad->SetPad(0, 0.3, 1, 1);
+    xFrame->Draw();
+
     // Disegno l'isto dei pull 
-    myC->cd(2); // Il 3 è quello in basso a sinistra
+    myC->cd(2); // In basso  
     gPad->SetPad(0, 0, 1, 0.3);
-    pullFrame->Draw();
+    pullFrame->Draw(); // Disegno le pull 
 
     // Linee sul grafico dei pull
     TLine lineplus{3.4, 3, 3.6, 3};
@@ -126,21 +141,16 @@ void macro(bool fixedTails = true, const TString bkg = "exp", const TString exte
     TLine linezero{3.4, 0, 3.6, 0};
 
     lineplus.SetLineStyle(2);
-    lineplus.SetLineColor(2);
+    lineplus.SetLineColor(2); // Rosso 
     lineplus.Draw("same");
 
     lineminus.SetLineStyle(2);
-    lineminus.SetLineColor(2);
+    lineminus.SetLineColor(2); // Rosso 
     lineminus.Draw("same");
 
     linezero.SetLineStyle(2);
-    linezero.SetLineColor(4);
+    linezero.SetLineColor(4); // Blu 
     linezero.Draw("same");
-
-    // Disegno l'istogramma con i dati 
-    myC->cd(1); // L'1 è quello in alto a sinistra
-    gPad->SetPad(0, 0.3, 1, 1);
-    xFrame->Draw();
 
     // Salvo il file 
     if (fixedTails) {
@@ -151,9 +161,11 @@ void macro(bool fixedTails = true, const TString bkg = "exp", const TString exte
 
     // ------------------------- Distrubuzione delle pull
 
-    // Disegnare l'histo delle pull (per fittare con la gaussiana) in un canvas separato
-    auto myC2 = new TCanvas("myC2", "plotss", 700, 800); 
-    myC2->cd(); 
+    myC->Clear(); 
+    myC->Divide(1, 1); 
+    myC->cd(); 
+
+    // Uso un istogramma normale di Root così posso fittare con una normale TF1  
     auto histo_pull = new TH1D("hp", "hp", 50, -6, 6); 
     for (int i{0}; i < rooHisto_pull->GetN(); ++i) {
         histo_pull->Fill(rooHisto_pull->GetPointY(i)); 
@@ -184,11 +196,11 @@ void macro(bool fixedTails = true, const TString bkg = "exp", const TString exte
     // --------------------------------------------------------------
 
     if (fixedTails) {
-        myC2->SaveAs("./Plots/pull_distrib_fixed_tails_bkg_" + bkg + "." + extension); 
+        myC->SaveAs("./Plots/pull_distrib_fixed_tails_bkg_" + bkg + "." + extension); 
     } else {
-        myC2->SaveAs("./Plots/pull_distrib_bkg_" + bkg + "." + extension); 
+        myC->SaveAs("./Plots/pull_distrib_bkg_" + bkg + "." + extension); 
     }
 
 
-    delete myC; delete myC2;
+    delete myC; 
 }

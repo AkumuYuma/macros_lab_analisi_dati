@@ -121,6 +121,7 @@ Classi più usate:
     Il metodo `fitTo()` prende come primo argomento un tipo `RooAbsData &`, cioè una reference a un `RooAbsData` (la reference è un modo intelligente per evitare la copia dei dati durante la chiamata in una funzione e senza usare i puntatori). Quindi ho bisogno di un oggetto di tipo `RooAbsData` e non un `RooAbsData *`, quindi devo passare il puntatore deferenziato (*MuMuHist) e non il puntatore stesso (MuMuHist). 
     
     - `plotOn(RooPlot * frame, RooLinkedList & cmdList)` -> Plotta la pdf sul frame (preparato per la variabile da cui ho estratto il frame). Si possono usare una serie di opzioni. 
+    Da notare che con l'opzione `Components(const char * nome_componente)` posso plottare una sola componente delle pdf composte (tipo re `RooAddPdf`). 
 
     - `paramOn(RooPlot * frmae, RooLinkedList & cmdList)` -> Aggiunge un box con i parametri da mostrare, di seguito alcune delle opzioni: 
     ![](./immagini_readme/opzioni_plot.png)
@@ -143,12 +144,57 @@ Abbiamo fittato l'istogramma PsiPrimeMass_bin9 dal [file](./root_files/hlt_5_new
 
 Utilizzato il codice dell'esercitazione 4a per aggiungere i pull dei due fit e scegliere il fit migliore del background. 
 
+**Nota: Ricorda sempre la correzione per i pull** 
+
+```cpp
+totalPdf->plotOn(xFrame, rf::LineColor(kRed)); 
+```
+
+Anche se hai già plottato la pdf totale e dopo le sue componenti, devi plottare tutta la pdf totale come ultima cosa prima della chiamata al metodo `pullHist()` perchè **`pullHist()` calcola la differenza tra l'istogramma e l'ultima pdf plottata**. 
+
 **Finito**
 # Es 5: Fit spettro J/#Psi
 [Pdf](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/Exercise4-outline.pdf)
 
-## Es 6: Fit con pull (esercitazione con esame 2017)
+Fit dello spettro della J/psi con una Crystal ball + una piccola gaussiana come segnale e una Chebychev come background. Disegnate anche le pull. 
+
+**Nota: Trovato il modo di cambiare la dimensione del font ai parametri dei fit plottati con `paramOn()`**
+
+```cpp
+xFrame->getAttText()->SetTextSize(0.025); 
+``` 
+
+Nota che il metodo `getAttText()` restituisce un oggetto di tipo `TAttText()` che è una classe di Root normale con tutti i suoi metodi. **Da documentazione, di default la Text Size settata è 1.**
+
+**Nota: Su come funziona `paramOn()`**
+```cpp
+totalPdf.paramOn(xFrame, Parameters(RooArgSet(meanCB, sigmaCB, nSig, mean, sigma, nSigGaussiana)),
+    Format("NEU", AutoPrecision(2)), 
+    Layout(0.45, 0.9, 0.9)); 
+```
+
+`Format()` permette di inserire le opzioni di visualizzazione, il primo argomento selezione cosa viene mostrato, da documentazione: << "N" adds name, "E" adds error, "A" shows asymmetric error, "U" shows unit, "H" hides the value >>. Il secondo argomento determina il numero di cifre significative da mostrare nel riquadro.
+
+**Cose da ricordare sui canvas**
+
+- Prima di disegnarci sopra ricorda sempre di fare il `Clear()`. 
+- Anche quando ti serve un solo pad, conviene fare `Divide(1, 1)`. Questo perchè quando usi l'opzione `Layout()` del metodo `paramOn()`, le coordinate relative sono relative al canvas, non al pad, quindi se per sbaglio ci sono un numero di pad diversi da quelli che credevi (anche se vuoti), le coordinate non saranno come te le aspetti. 
+
+**Problema: L'algoritmo di fit dà errori. (Ma il fit è graficamente buono)**
+
+**Finito**
+
+# Es 6: Fit con pull (esercitazione con esame 2017)
 [Pdf](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/Traccia-esame-28marzo17.pdf)
+
+Era un esempio di traccia d'esame quindi codice scritto totalmente da 0.
+
+Fit del grafico con due Crystal ball (il fit è migliore se le CB hanno la stessa coda) e background a scelta tra esponenziale o cheby. Disegno delle pull e fit della distribuzione delle pull con una gaussiana. 
+
+L'utente può scegliere se le code delle CB sono fissate o no (cioè stesso parametro per la coda di entrambe) e può scegliere il background tra esponenziale e chebychev. 
+
+**Nota: Qui c'è il modo per convertire l'istogramma delle pull in un TH1D normale.**
+
 **Finito**
 
 # Es 7: Uso dei dati di Es 4 per fittare tutti i bin (da 1 a 23)
@@ -191,5 +237,4 @@ Versione di root nella macchina remota: 6.14/09 (built from tag, 22 November 201
 Sono stati trovati alcuni bug nella versione precedente di root. Verranno qui segnalati. I bug non sono stati esplorati, ci si è limitati ad evitarli.
 
 - La classe TH1D * non viene trovata nell'albero di discendenza della classe TObject *. Questo provoca un non funzionamento del dynamic_cast dagli oggetti estratti dai root file ad istogrammi. Per questo
-motivo è stato spesso necessario fare conversioni c-like. Probabilmente basterebbe utilizzare static_cast ma non è stato ancora verificato. Inoltre non si è indagato su quali classi non vengono trovate
-nell'albero oltre a TH1D *
+motivo è stato spesso necessario fare conversioni c-like. Basterebbe utilizzare uno static_cast ma alla fine in questo caso è lo stesso. Inoltre non si è indagato su quali classi non vengono trovate nell'albero oltre a TH1D *. 
