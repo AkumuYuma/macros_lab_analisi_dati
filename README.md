@@ -195,6 +195,28 @@ L'utente può scegliere se le code delle CB sono fissate o no (cioè stesso para
 
 **Nota: Qui c'è il modo per convertire l'istogramma delle pull in un TH1D normale.**
 
+**Nota: Incompatibilità sulla macchina remota**
+
+- Sulla macchina remota questo codice esegue fino alla fine ma produce un errore segmentation violation. Non è chiaro il perchè. 
+
+    Descrizione: Se sulla macchina remota si esegue `$ root macro.C`, oppure si entra in root e si esegue `[] .x macro.C`, viene eseguito tutto il codice senza errori e alla fine viene dato il segmentation violation, se invece si entra in root e si esegue prima `[] .L macro.C` e poi `[] .x macro.C`, allora il codice non viene proprio eseguito e la segmentation violation viene sollevata all'inizio. 
+
+- Inoltre, la versione di root della macchina remota non permette di fare 
+
+    ```cpp 
+    rooHist_pull->GetPointY(i); 
+    ``` 
+
+    Perchè l'oggetto di tipo `RooHist` non ha come metodo `GetPointY()`. In quel caso si fa: 
+
+    ```cpp 
+    Double_t x{0}; 
+    Double_t y{0}; 
+    rooHist_pull->GetPoint(i, x, y); 
+    ```
+
+    E salva il valore del punto y nella variabile y, cambiandone il valore. 
+
 **Finito**
 
 # Es 7: Uso dei dati di Es 4 per fittare tutti i bin (da 1 a 23)
