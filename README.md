@@ -56,143 +56,155 @@ Pdf su RooFit:
 
 ## Appunti su roofit 
 Classi più usate: 
-- `RooRealVar` -> Rappresenta una variabile reale.
+### `RooRealVar` -> Rappresenta una variabile reale.
 
-    Il costruttore che lui usa più spesso è: 
-    ```cpp 
-    RooRealVar (const char *name, const char *title, Double_t value, Double_t minValue, Double_t maxValue, const char *unit="")
-    ```
-    Il name è la stringa con cui viene salvata in memoria, invece il titolo è quello che viene scritto. Gli altri argomenti sono il valore iniziale e poi gli estremi.
+Il costruttore che lui usa più spesso è: 
 
-    Metodi più usati: 
-    - `frame()` -> Crea un nuovo oggetto di tipo `RooPlot` nella heap memory (quindi un puntatore classico) **inizializzato per questo oggetto** ma senza plot. Ha senso quindi fare `oggettoDaPlottare->PlotOn(x.frame())`. 
-    Puoi usare il metodo tutte le volte che vuoi e ogni volta ottieni un **nuovo** `RooPlot *`. 
-    **Attenzione: Il chiamante del metodo ha la responsabilità di eliminare dalla heap l'oggetto di tipo `RooPlot` restituito.**
-        
-    - `setBins(Int_t nBins)` -> Crea un binnaggio uniforme per la variabile. 
+```cpp 
+RooRealVar (const char *name, const char *title, Double_t value, Double_t minValue, Double_t maxValue, const char *unit="")
+```
+Il name è la stringa con cui viene salvata in memoria, invece il titolo è quello che viene scritto. Gli altri argomenti sono il valore iniziale e poi gli estremi.
 
-- `RooPlot` -> Rappresenta un frame per i plot 
+Metodi più usati: 
 
-    Metodi importanti: 
-    - `Draw()` -> Per disegnare gli oggetti nel canvas. (Più spesso in questi contesti si usa il metodo `plotOn()` delle `RooAbsPdf`)
-
-    - `pullHist()` -> Restituisce un istogramma con le differenze tra l'istogramma plottato sul frame e **l'ultima** pdf plottata sul frame. 
+- `frame()` -> Crea un nuovo oggetto di tipo `RooPlot` nella heap memory (quindi un puntatore classico) **inizializzato per questo oggetto** ma senza plot. Ha senso quindi fare `oggettoDaPlottare->PlotOn(x.frame())`. 
+Puoi usare il metodo tutte le volte che vuoi e ogni volta ottieni un **nuovo** `RooPlot *`. 
+**Attenzione: Il chiamante del metodo ha la responsabilità di eliminare dalla heap l'oggetto di tipo `RooPlot` restituito.**
     
-    - `addObject()` -> Aggiunge un oggetto al frame per disegnarlo. Prende come argomento un `TObject *`. 
+- `setBins(Int_t nBins)` -> Crea un binnaggio uniforme per la variabile. 
+
+### `RooPlot` -> Rappresenta un frame per i plot 
+
+Metodi importanti: 
+
+- `Draw()` -> Per disegnare gli oggetti nel canvas. (Più spesso in questi contesti si usa il metodo `plotOn()` delle `RooAbsPdf`)
+
+- `pullHist()` -> Restituisce un istogramma con le differenze tra l'istogramma plottato sul frame e **l'ultima** pdf plottata sul frame. 
+
+- `addObject()` -> Aggiunge un oggetto al frame per disegnarlo. Prende come argomento un `TObject *`. 
     
 
-- `RooDataHist` -> Rappresenta un istogramma. 
-    Diversi costruttori, gli argomenti importanti sono: 
-    ```cpp
-    RooDataHist (std::string_view name, std::string_view title, const RooArgList &vars, const TH1 *hist, Double_t initWgt=1.0)
-    ```
-    Posso creare un RooDataHist da un istogramma normale(`const TH1 *`). 
-    Il costruttore prende anche una `RooRealVar` come variabile dell'istogramma. 
+### `RooDataHist` -> Rappresenta un istogramma. 
 
-    Nota che lui crea un `RooDataHist` nell'[esercitazione 4a](./es4_roofit/psiPrime_fit.C#L35). 
-    In quel caso al posto del costruttore scritto sopra, ne usa un altro in cui passa un `RooCmdArg` al post del `TH1 *`. Per fare questo è necessario convertire l'istogramma in `RooCmdArg` e per questo usa `Import`. 
+Diversi costruttori, gli argomenti importanti sono: 
 
-- `Import` -> Credo sia una funzione di RooFit. Restituisce un oggetto della classe `RooCmdArg`. Permette di importare gli oggetti tipo `TH1` (ma non solo) per convertirli in `RooDataHist`. 
+```cpp
+RooDataHist (std::string_view name, std::string_view title, const RooArgList &vars, const TH1 *hist, Double_t initWgt=1.0)
+```
 
-- `RooArgList` -> E' un oggetto container che tiene diversi oggetti di tipo `RooAbsArg` (e le classi che derivano da essa). 
+Posso creare un RooDataHist da un istogramma normale(`const TH1 *`). 
+Il costruttore prende anche una `RooRealVar` come variabile dell'istogramma. 
 
-    Esempio: Creazione di una pdf somma di due pdf: 
-    ```cpp
-    RooAddPdf* totalPDF = new RooAddPdf("totalPDF", "totalPDF", RooArgList(sigPDF, bkgPDF), RooArgList(nSig, nBkg));
-    ```
-    Il costruttore di `RooAddPdf` prende una `RooArgList` che indichi la lista di pdf da sommare e una `RooArgList` che indichi la lista dei pesi. 
+Nota che lui crea un `RooDataHist` nell'[esercitazione 4a](./es4_roofit/psiPrime_fit.C#L35). 
+In quel caso al posto del costruttore scritto sopra, ne usa un altro in cui passa un `RooCmdArg` al post del `TH1 *`. Per fare questo è necessario convertire l'istogramma in `RooCmdArg` e per questo usa `Import`. 
 
-- `RooArgSet` -> Dovrebbe funzionare più o meno come `RooArgList`. 
+### `Import` -> Credo sia una funzione di RooFit. Restituisce un oggetto della classe `RooCmdArg`. Permette di importare gli oggetti tipo `TH1` (ma non solo) per convertirli in `RooDataHist`. 
 
-- `RooAbsPdf` -> Rappresenta una pdf. Tutte le distribuzioni ereditano da questa (anche `RooAddPdf`). 
+### `RooArgList` -> E' un oggetto container che tiene diversi oggetti di tipo `RooAbsArg` (e le classi che derivano da essa). 
 
-    Metodi importanti: 
+Esempio: Creazione di una pdf somma di due pdf: 
 
-    - `fitTo(RooAbsData & data, const RooLinkedList & cmdList)` -> Fitta la pdf al dataset (data). Il fit viene fatto ML unbinned o binned a seconda del dataset. Di default il fit viene fatto facendo MIGRAD, HESSE e MINOS in successione. Comunque basta passare le opzioni. 
-    Restituisce un `RooFitResult *`.
-    
-    Esempio: 
-    ```cpp 
-    totalPDF->fitTo(*MuMuHist, Extended(kTRUE), Minos(kTRUE)); 
-    ```
-    `*MuMuHist` è l'oggetto su cui fittare, le altre sono le opzioni. 
+```cpp
+RooAddPdf* totalPDF = new RooAddPdf("totalPDF", "totalPDF", RooArgList(sigPDF, bkgPDF), RooArgList(nSig, nBkg));
+```
 
-    **Nota: Perchè passo \*MuMuHist e non MuMuHist (cioè passo l'oggetto puntato e non il puntatore)?** 
+Il costruttore di `RooAddPdf` prende una `RooArgList` che indichi la lista di pdf da sommare e una `RooArgList` che indichi la lista dei pesi. 
 
-        Il metodo `fitTo()` prende come primo argomento un tipo `RooAbsData &`, cioè una reference a un `RooAbsData` (la reference è un modo intelligente per evitare la copia dei dati durante la chiamata in una funzione e senza usare i puntatori). Quindi ho bisogno di un oggetto di tipo `RooAbsData` e non un `RooAbsData *`, quindi devo passare il puntatore deferenziato (*MuMuHist) e non il puntatore stesso (MuMuHist). 
+### `RooArgSet` -> Dovrebbe funzionare più o meno come `RooArgList`. 
 
-    - `createNLL(RooAbsData & data, const RooLinkedList & cmdList)` -> Costruisce una rappresentazione di -log(L) della pdf su un dato dataset. Restituisce una `RooAbsReal *` 
-    
-    - `generate(const RooArgSet & whatVars, ... opzioni)` -> Genera un nuovo dataset contenente la variabile specificata con gli eventi campionati dalla distribuzione. Restituisce un `RooDataSet *` Ci sono un sacco di opzioni e di diverse versioni, noi l'abbiamo usato principalmente così: 
+### `RooAbsPdf` -> Rappresenta una pdf. Tutte le distribuzioni ereditano da questa (anche `RooAddPdf`). 
 
-    ```cpp 
-    RooDataSet * nuovoDataSet = pdf.generate(nomeVariabile, numeroEventi); 
-    ``` 
+Metodi importanti: 
 
-    dove `nomeVariabile` è il nome della `RooRealVar` da usare e `numeroEventi` è un intero che indica il numero di eventi da generare. 
+- `fitTo(RooAbsData & data, const RooLinkedList & cmdList)` -> Fitta la pdf al dataset (data). Il fit viene fatto ML unbinned o binned a seconda del dataset. Di default il fit viene fatto facendo MIGRAD, HESSE e MINOS in successione. Comunque basta passare le opzioni. 
+Restituisce un `RooFitResult *`.
 
-    Per ulteriori informazioni vedi la [documentazione completa](https://root.cern.ch/doc/master/classRooAbsPdf.html#a87926e1044acf4403d8d5f1d366f6591). 
+Esempio: 
 
-    - `plotOn(RooPlot * frame, RooLinkedList & cmdList)` -> Plotta la pdf sul frame (preparato per la variabile da cui ho estratto il frame). Si possono usare una serie di opzioni. 
-    Da notare che con l'opzione `Components(const char * nome_componente)` posso plottare una sola componente delle pdf composte (tipo re `RooAddPdf`). 
+```cpp 
+totalPDF->fitTo(*MuMuHist, Extended(kTRUE), Minos(kTRUE)); 
+```
+`*MuMuHist` è l'oggetto su cui fittare, le altre sono le opzioni. 
 
-    - `paramOn(RooPlot * frmae, RooLinkedList & cmdList)` -> Aggiunge un box con i parametri da mostrare, di seguito alcune delle opzioni: 
-    ![](./immagini_readme/opzioni_plot.png)
+**Nota: Perchè passo \*MuMuHist e non MuMuHist (cioè passo l'oggetto puntato e non il puntatore)?** 
 
-    Tutte le opzioni per i vari metodi si possono trovare su [questa pagina](https://root.cern.ch/doc/master/classRooAbsPdf.html#af43c48c044f954b0e0e9d4fe38347551). 
+    Il metodo `fitTo()` prende come primo argomento un tipo `RooAbsData &`, cioè una reference a un `RooAbsData` (la reference è un modo intelligente per evitare la copia dei dati durante la chiamata in una funzione e senza usare i puntatori). Quindi ho bisogno di un oggetto di tipo `RooAbsData` e non un `RooAbsData *`, quindi devo passare il puntatore deferenziato (*MuMuHist) e non il puntatore stesso (MuMuHist). 
 
-    Alcune cose utili: 
-        - Cambiare la dimensione del font ai parametri dei fit plottati con `paramOn()`
+- `createNLL(RooAbsData & data, const RooLinkedList & cmdList)` -> Costruisce una rappresentazione di -log(L) della pdf su un dato dataset. Restituisce una `RooAbsReal *` 
 
-            ```cpp
-            xFrame->getAttText()->SetTextSize(0.025); 
-            ``` 
+- `generate(const RooArgSet & whatVars, ... opzioni)` -> Genera un nuovo dataset contenente la variabile specificata con gli eventi campionati dalla distribuzione. Restituisce un `RooDataSet *` Ci sono un sacco di opzioni e di diverse versioni, noi l'abbiamo usato principalmente così: 
 
-        Nota che il metodo `getAttText()` restituisce un oggetto di tipo `TAttText()` che è una classe di Root normale con tutti i suoi metodi. **Da documentazione, di default la Text Size settata è 1.**
+```cpp 
+RooDataSet * nuovoDataSet = pdf.generate(nomeVariabile, numeroEventi); 
+``` 
 
-        - Cambiare lo spessore della linea (anche eliminarla) del box dei parametri con `paramOn()`
+dove `nomeVariabile` è il nome della `RooRealVar` da usare e `numeroEventi` è un intero che indica il numero di eventi da generare. 
 
-            ```cpp
-            xFrame->getAttLine()->SetLineWidth(0); 
-            ```
+Per ulteriori informazioni vedi la [documentazione completa](https://root.cern.ch/doc/master/classRooAbsPdf.html#a87926e1044acf4403d8d5f1d366f6591). 
 
-        - Nota: Su come funziona `paramOn()`
+- `plotOn(RooPlot * frame, RooLinkedList & cmdList)` -> Plotta la pdf sul frame (preparato per la variabile da cui ho estratto il frame). Si possono usare una serie di opzioni. 
+Da notare che con l'opzione `Components(const char * nome_componente)` posso plottare una sola componente delle pdf composte (tipo re `RooAddPdf`). 
+
+- `paramOn(RooPlot * frmae, RooLinkedList & cmdList)` -> Aggiunge un box con i parametri da mostrare, di seguito alcune delle opzioni: 
+![](./immagini_readme/opzioni_plot.png)
+
+Tutte le opzioni per i vari metodi si possono trovare su [questa pagina](https://root.cern.ch/doc/master/classRooAbsPdf.html#af43c48c044f954b0e0e9d4fe38347551). 
+
+- Alcune cose utili: 
+
+    - Cambiare la dimensione del font ai parametri dei fit plottati con `paramOn()`: 
 
         ```cpp
-        totalPdf.paramOn(xFrame, Parameters(RooArgSet(meanCB, sigmaCB, nSig, mean, sigma, nSigGaussiana)),
-            Format("NEU", AutoPrecision(2)), 
-            Layout(0.45, 0.9, 0.9)); 
+        xFrame->getAttText()->SetTextSize(0.025); 
+        ``` 
+
+    Nota che il metodo `getAttText()` restituisce un oggetto di tipo `TAttText()` che è una classe di Root normale con tutti i suoi metodi. **Da documentazione, di default la Text Size settata è 1.**
+
+    - Cambiare lo spessore della linea (anche eliminarla) del box dei parametri con `paramOn()`
+
+        ```cpp
+        xFrame->getAttLine()->SetLineWidth(0); 
         ```
 
-        `Format()` permette di inserire le opzioni di visualizzazione, il primo argomento selezione cosa viene mostrato, da documentazione: << "N" adds name, "E" adds error, "A" shows asymmetric error, "U" shows unit, "H" hides the value >>. Il secondo argomento determina il numero di cifre significative da mostrare nel riquadro.
+    - Nota: Su come funziona `paramOn()`
+
+    ```cpp
+    totalPdf.paramOn(xFrame, Parameters(RooArgSet(meanCB, sigmaCB, nSig, mean, sigma, nSigGaussiana)),
+        Format("NEU", AutoPrecision(2)), 
+        Layout(0.45, 0.9, 0.9)); 
+    ```
+
+    `Format()` permette di inserire le opzioni di visualizzazione, il primo argomento selezione cosa viene mostrato, da documentazione: << "N" adds name, "E" adds error, "A" shows asymmetric error, "U" shows unit, "H" hides the value >>. Il secondo argomento determina il numero di cifre significative da mostrare nel riquadro.
 
 
-- `RooAbsReal` -> E' la classe astratta per oggetti che rappresentano un valore reale e implementa funzionalità comuni come la possibilità di plottare, calcolare gli integrali eccetera. Si incontra principalmente come valore di ritorno del metodo `createNLL()` della classe `RooAbsPdf` a rappresentare una Negative Log Likelihood. 
+### `RooAbsReal` -> E' la classe astratta per oggetti che rappresentano un valore reale. 
 
-- `RooFitResult` -> Rappresenta i risultati del fit. Oggetto restituito dal metodo `fitTo()`. 
+Implementa funzionalità comuni come la possibilità di plottare, calcolare gli integrali eccetera. Si incontra principalmente come valore di ritorno del metodo `createNLL()` della classe `RooAbsPdf` a rappresentare una Negative Log Likelihood. 
+
+### `RooFitResult` -> Rappresenta i risultati del fit. Oggetto restituito dal metodo `fitTo()`. 
     
-    Metodi principali: 
-    - `Print()` -> stampa i risultati del fit a schermo 
-    - `correlationMatrix()` -> Restituisce la matrice di correlazione (a sua volta puoi fare `r->correlationMatrix().Print()`). 
+Metodi principali: 
+- `Print()` -> stampa i risultati del fit a schermo 
+- `correlationMatrix()` -> Restituisce la matrice di correlazione (a sua volta puoi fare `r->correlationMatrix().Print()`). 
 
-- `RooMinuit` -> E' una classe wrapper, rappresenta un'interfaccia tra Minuit e RooFit. 
+### `RooMinuit` -> E' una classe wrapper, rappresenta un'interfaccia tra Minuit e RooFit. 
 
-    Costruttore principale: 
+Costruttore principale: 
 
-    `RooMinuit(RooAbsReal & function)` -> Costruisce l'interfaccia minuit per una data funzione. Quindi probabilmente gli passerai la funzione di likelihood generata con `pdf.createNLL()`. 
+`RooMinuit(RooAbsReal & function)` -> Costruisce l'interfaccia minuit per una data funzione. Quindi probabilmente gli passerai la funzione di likelihood generata con `pdf.createNLL()`. 
 
-    Metodi principali: 
-    - `migrad()` 
-    - `hesse()` 
-    - `migrad()`
-    - `minos()` 
+Metodi principali: 
+- `migrad()` 
+- `hesse()` 
+- `migrad()`
+- `minos()` 
 
-    In generale sono tutti i metodi da chiamare per minimizzare con diverse strategie la funzione da fittare. 
+In generale sono tutti i metodi da chiamare per minimizzare con diverse strategie la funzione da fittare. 
 
-- `RooDataset` **TODO** 
+### `RooDataset` **TODO** 
 
-    Metodi principali: 
-    - `write()`
+Metodi principali: 
+- `write()`
 ## Es 4a: Fit con gaussiana + fondo con roofit
 [Pdf dell'esercitazione](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/esercitazione-roofit-invmass.pdf).
 [Pdf su Migrad, Hesse e Minos](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/Approfondimento3.pdf).
