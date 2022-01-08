@@ -98,7 +98,9 @@ Il costruttore prende anche una `RooRealVar` come variabile dell'istogramma.
 Nota che lui crea un `RooDataHist` nell'[esercitazione 4a](./es4_roofit/psiPrime_fit.C#L35). 
 In quel caso al posto del costruttore scritto sopra, ne usa un altro in cui passa un `RooCmdArg` al post del `TH1 *`. Per fare questo è necessario convertire l'istogramma in `RooCmdArg` e per questo usa `Import`. 
 
-### `Import` -> Credo sia una funzione di RooFit. Restituisce un oggetto della classe `RooCmdArg`. Permette di importare gli oggetti tipo `TH1` (ma non solo) per convertirli in `RooDataHist`. 
+### `Import` -> funzione di RooFit. 
+
+Restituisce un oggetto della classe `RooCmdArg`. Permette di importare gli oggetti tipo `TH1` (ma non solo) per convertirli in `RooDataHist`. 
 
 ### `RooArgList` -> E' un oggetto container che tiene diversi oggetti di tipo `RooAbsArg` (e le classi che derivano da essa). 
 
@@ -114,41 +116,41 @@ Il costruttore di `RooAddPdf` prende una `RooArgList` che indichi la lista di pd
 
 ### `RooAbsPdf` -> Rappresenta una pdf. Tutte le distribuzioni ereditano da questa (anche `RooAddPdf`). 
 
-Metodi importanti: 
+- Metodi importanti: 
 
-- `fitTo(RooAbsData & data, const RooLinkedList & cmdList)` -> Fitta la pdf al dataset (data). Il fit viene fatto ML unbinned o binned a seconda del dataset. Di default il fit viene fatto facendo MIGRAD, HESSE e MINOS in successione. Comunque basta passare le opzioni. 
-Restituisce un `RooFitResult *`.
+    - `fitTo(RooAbsData & data, const RooLinkedList & cmdList)` -> Fitta la pdf al dataset (data). Il fit viene fatto ML unbinned o binned a seconda del dataset. Di default il fit viene fatto facendo MIGRAD, HESSE e MINOS in successione. Comunque basta passare le opzioni. 
+    Restituisce un `RooFitResult *`.
 
-Esempio: 
+    Esempio: 
 
-```cpp 
-totalPDF->fitTo(*MuMuHist, Extended(kTRUE), Minos(kTRUE)); 
-```
-`*MuMuHist` è l'oggetto su cui fittare, le altre sono le opzioni. 
+    ```cpp 
+    totalPDF->fitTo(*MuMuHist, Extended(kTRUE), Minos(kTRUE)); 
+    ```
+    `*MuMuHist` è l'oggetto su cui fittare, le altre sono le opzioni. 
 
-**Nota: Perchè passo \*MuMuHist e non MuMuHist (cioè passo l'oggetto puntato e non il puntatore)?** 
+    **Nota: Perchè passo \*MuMuHist e non MuMuHist (cioè passo l'oggetto puntato e non il puntatore)?** 
 
-    Il metodo `fitTo()` prende come primo argomento un tipo `RooAbsData &`, cioè una reference a un `RooAbsData` (la reference è un modo intelligente per evitare la copia dei dati durante la chiamata in una funzione e senza usare i puntatori). Quindi ho bisogno di un oggetto di tipo `RooAbsData` e non un `RooAbsData *`, quindi devo passare il puntatore deferenziato (*MuMuHist) e non il puntatore stesso (MuMuHist). 
+        Il metodo `fitTo()` prende come primo argomento un tipo `RooAbsData &`, cioè una reference a un `RooAbsData` (la reference è un modo intelligente per evitare la copia dei dati durante la chiamata in una funzione e senza usare i puntatori). Quindi ho bisogno di un oggetto di tipo `RooAbsData` e non un `RooAbsData *`, quindi devo passare il puntatore deferenziato (*MuMuHist) e non il puntatore stesso (MuMuHist). 
 
-- `createNLL(RooAbsData & data, const RooLinkedList & cmdList)` -> Costruisce una rappresentazione di -log(L) della pdf su un dato dataset. Restituisce una `RooAbsReal *` 
+    - `createNLL(RooAbsData & data, const RooLinkedList & cmdList)` -> Costruisce una rappresentazione di -log(L) della pdf su un dato dataset. Restituisce una `RooAbsReal *` 
 
-- `generate(const RooArgSet & whatVars, ... opzioni)` -> Genera un nuovo dataset contenente la variabile specificata con gli eventi campionati dalla distribuzione. Restituisce un `RooDataSet *` Ci sono un sacco di opzioni e di diverse versioni, noi l'abbiamo usato principalmente così: 
+    - `generate(const RooArgSet & whatVars, ... opzioni)` -> Genera un nuovo dataset contenente la variabile specificata con gli eventi campionati dalla distribuzione. Restituisce un `RooDataSet *` Ci sono un sacco di opzioni e di diverse versioni, noi l'abbiamo usato principalmente così: 
 
-```cpp 
-RooDataSet * nuovoDataSet = pdf.generate(nomeVariabile, numeroEventi); 
-``` 
+    ```cpp 
+    RooDataSet * nuovoDataSet = pdf.generate(nomeVariabile, numeroEventi); 
+    ``` 
 
-dove `nomeVariabile` è il nome della `RooRealVar` da usare e `numeroEventi` è un intero che indica il numero di eventi da generare. 
+    dove `nomeVariabile` è il nome della `RooRealVar` da usare e `numeroEventi` è un intero che indica il numero di eventi da generare. 
 
-Per ulteriori informazioni vedi la [documentazione completa](https://root.cern.ch/doc/master/classRooAbsPdf.html#a87926e1044acf4403d8d5f1d366f6591). 
+    Per ulteriori informazioni vedi la [documentazione completa](https://root.cern.ch/doc/master/classRooAbsPdf.html#a87926e1044acf4403d8d5f1d366f6591). 
 
-- `plotOn(RooPlot * frame, RooLinkedList & cmdList)` -> Plotta la pdf sul frame (preparato per la variabile da cui ho estratto il frame). Si possono usare una serie di opzioni. 
-Da notare che con l'opzione `Components(const char * nome_componente)` posso plottare una sola componente delle pdf composte (tipo re `RooAddPdf`). 
+    - `plotOn(RooPlot * frame, RooLinkedList & cmdList)` -> Plotta la pdf sul frame (preparato per la variabile da cui ho estratto il frame). Si possono usare una serie di opzioni. 
+    Da notare che con l'opzione `Components(const char * nome_componente)` posso plottare una sola componente delle pdf composte (tipo re `RooAddPdf`). 
 
-- `paramOn(RooPlot * frmae, RooLinkedList & cmdList)` -> Aggiunge un box con i parametri da mostrare, di seguito alcune delle opzioni: 
-![](./immagini_readme/opzioni_plot.png)
+    - `paramOn(RooPlot * frmae, RooLinkedList & cmdList)` -> Aggiunge un box con i parametri da mostrare, di seguito alcune delle opzioni: 
+    ![](./immagini_readme/opzioni_plot.png)
 
-Tutte le opzioni per i vari metodi si possono trovare su [questa pagina](https://root.cern.ch/doc/master/classRooAbsPdf.html#af43c48c044f954b0e0e9d4fe38347551). 
+    Tutte le opzioni per i vari metodi si possono trovare su [questa pagina](https://root.cern.ch/doc/master/classRooAbsPdf.html#af43c48c044f954b0e0e9d4fe38347551). 
 
 - Alcune cose utili: 
 
