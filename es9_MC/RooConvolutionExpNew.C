@@ -19,7 +19,8 @@
 #include "RooRandom.h" // needed for Randomizer
 
 #include <sys/time.h>
-#include <sys/times.h>
+#include <chrono> 
+#include <fstream>
 
 using namespace RooFit; //Working in RooFit//
 
@@ -34,12 +35,6 @@ using namespace RooFit; //Working in RooFit//
 // make a plot TIME (in linear scale) vs #EVENTS (in log scale) taking more points
 //////////////////////////////////////////////////////////////////////////////////
 
-timeval startTime, stopTime, totalTime;
-timeval startTimeRead, stopTimeRead, totalTimeRead;
-clock_t startCPU, stopCPU;
-clock_t startCPURead, stopCPURead;
-tms startProc, stopProc;  //Struct time intervals in clock ticks//
-tms startProcRead, stopProcRead;
 
 //  gROOT->Reset();
 //  gROOT->Clear();
@@ -48,12 +43,9 @@ tms startProcRead, stopProcRead;
 ////
 //void RooConvolutionExpNew(int events=1000,int bins=200) {
 //
-void RooConvolutionExpNew(TString argv, TString calctime, int bins=200) {
+void RooConvolutionExpNew(int events = 1000, TString calctime = "yes", int bins=200) {
 
-  int events = atoi(argv.Data());  // converte string "numero" in numero intero
-  TString name = argv;
-
-  char bufferstring[256];
+  TString name  = std::to_string(events).c_str();
 
   RooRealVar xvar("xvar", "", -10, 10);
   xvar.setBins(bins);
@@ -68,77 +60,76 @@ void RooConvolutionExpNew(TString argv, TString calctime, int bins=200) {
   RooRealVar sigma("#sigma", "sigma", 1.5, 0.1, 5);                     //Gaussian sigma//
   RooGaussian resol("resol", "Gaussian resolution", xvar, zero, sigma); //Gaussian pdf//
 
+  // Gaussian + BW convolution //
+  RooNumConvPdf convolution("convolution", "BW (X) gauss", xvar, signal , resol);
+
   // Background //
   RooRealVar alpha("#alpha","Exponential Parameter",-0.05,-2.0,0.0);
   RooExponential bkg("Bkg","Bkg",xvar,alpha);
-
-  // Gaussian + BW convolution //
-  RooNumConvPdf convolution("convolution", "BW (X) gauss", xvar, signal , resol);
 
   // TotalPdf = Gaussian + Bkg //
   RooRealVar sigfrac("sig1frac","fraction of component 1 in signal",0.5,0.,1.) ;
   RooAddPdf total("totalPDF", "totalPDF", RooArgList(convolution, bkg),sigfrac);
 
-  cout <<"\nGenerating " << name << " events\n" << endl ;
+  std::cout <<"\nGenerating " << events << " events\n" << std::endl ;
 
   ////////////////////////////////////////////////////////////////////////
   // Generating data
   ////////////////////////////////////////////////////////////////////////
 
+  // Uso come seed per la generazione casuale l'istante presente
   timeval trand;
   gettimeofday(&trand,NULL);
 
+  // Uso secondi e microsecondi come seme (alla fine è uguale potevo usare un valore qualsiasi)
   long int msRand = trand.tv_sec * 1000 + trand.tv_usec / 1000;
   cout << "\n------" << endl;
   cout << "msRand = " << msRand ;
   cout << "\n------" << endl;
+  // Setto il seme random 
   RooRandom::randomGenerator()->SetSeed(msRand);
-  //
+
+  // Creo un dataset generando eventi random dalla pdf totale. 
+  // generate prende la variabile su cui generare e il numero di eventi da generare
   RooDataSet* data = total.generate(xvar,events);
-  //
-  sprintf(bufferstring,"./txt_files/%d_events.txt",events);
+
+  // Nome del file su cui salvare gli eventi random 
+  // Tutto questo è perchè ho bisogno di concatenare le stringhe e poi usare stringhe c-like
+  std::string nomeFile{"./txt_files/" + name + "_events.txt"};
+  const char * nomeFileC = nomeFile.c_str();
+  // Tolgo il qualificatore const
+  char * bufferstring = const_cast<char *>(nomeFileC); 
+  // Scrivo il dataset nel file con nome contenuto in bufferstring 
   data->write(bufferstring);
-  //
-  cout <<"\nFitting " << name << " events\n" << endl ;
+
+  cout <<"\nFitting " << events << " events\n" << endl ;
 
   ////////////////////////////////////////////////////////////////////////
   // Fitting data
   ////////////////////////////////////////////////////////////////////////
 
-
+  // Creo la negative log likelihood dei dati rispetto alla pdf total
   RooAbsReal* nll = total.createNLL(*data);
 
   //Declare null (pointer) and assign -log(Likelyhood) to it, Likelihood -> convolution and *data//
-  RooMinuit min(*nll);
+  RooMinuit min(*nll); 
 
-  if (calctime == "yes")
-    {
-     gettimeofday(&startTime, NULL);
-     startCPU = times(&startProc);
-    }
-  //--Migrad Fit
-  min.migrad();  // execute fit
-  //
-  if (calctime == "yes")
-    {
-     stopCPU = times(&stopProc);
-     gettimeofday(&stopTime, NULL);
-    }
-  //
-  //
-  ////// Print total fitting time
-  cout << "\n--------------------------------------------------------------" << endl ;
-  //
-  string total_time;
-  if (calctime == "yes")
-    {
-     double myCPUc = (stopCPU - startCPU)*10000;
-     total_time = to_string(myCPUc / CLOCKS_PER_SEC);
-     cout << "Total CPU time: " << total_time << endl;
-    }
-//
-  cout << "\n--------------------------------------------------------------" << endl ;
-  cout << endl ;
+  std::cout << "--------------------------------------------------------------" << std::endl ;
+  // Tempo iniziale 
+  if (calctime == "yes") {
+    std::chrono::steady_clock::time_point tempoIniziale{std::chrono::steady_clock::now()};
+    min.migrad();  // execute fit
+    std::cout << "--------------------------------------------------------------" << std::endl ;
+    std::chrono::steady_clock::time_point tempoFinale{std::chrono::steady_clock::now()};
+    std::string deltaTime{
+      std::to_string(
+        std::chrono::duration_cast<std::chrono::seconds>(tempoFinale - tempoIniziale).count()
+        )};
+    std::cout << "Total CPU time: " << deltaTime << std::endl;
+
+  } else min.migrad();
+
+  std::cout << "--------------------------------------------------------------" << std::endl ;
 
   ////////////////////////////////////////////////////////////////////
   // Fit result and data representation
@@ -147,33 +138,26 @@ void RooConvolutionExpNew(TString argv, TString calctime, int bins=200) {
   TCanvas *myC = new TCanvas("RooCanvas","Roofit Canvas", 1200, 800);
 
   RooPlot *frame = xvar.frame("") ;
-  sprintf(bufferstring," RooFit : %d events",events);
-  frame->SetTitle(bufferstring) ;
+  // Titolo
+  std::string titolo{"RooFit: " + std::to_string(events) + " events"}; 
+  TString titoloTstring = titolo.c_str(); 
+  frame->SetTitle(titoloTstring) ;
   frame->SetYTitle("# of events") ;
+  // Plot data
   data->plotOn(frame);
+  // Plot pdf 
   total.plotOn(frame,LineColor(kGreen));
   total.plotOn(frame,Components(RooArgSet(convolution)),LineColor(kRed));
   total.plotOn(frame,Components(RooArgSet(bkg)),LineColor(kBlue),LineStyle(kDashed));
+  // Parameters 
   total.paramOn(frame, Layout(0.75,0.99,0.99));
   frame->getAttText()->SetTextSize(0.028);
 
-  frame->Draw() ;
-  //myC->SaveAs("plots/RooConvGen_"+name+".eps");
-  myC->SaveAs("plots/RooConvGen_"+name+".png");
-  //
-  if(myC) {
-           myC->Close();
-//	   gSystem->ProcessEvents();
-           delete myC;
-//	   myC = 0;
-          }
-  //
 
-  // Scrivo il numero di eventi generato e il tempo passato su un file
-  if (calctime == "yes") {
-      ofstream outputFile{"./txt_files/emanuele_times.txt", ios::app};
-      outputFile << name << "\t" << total_time << "\n";
-      outputFile.close();
-  }
+  frame->Draw() ;
+
+  myC->SaveAs("plots/RooConvGen_"+name+".png");
+  delete myC; 
+
 
 }

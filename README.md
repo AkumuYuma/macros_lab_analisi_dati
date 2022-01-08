@@ -104,9 +104,10 @@ Classi più usate:
 
 - `RooArgSet` -> Dovrebbe funzionare più o meno come `RooArgList`. 
 
-- `RooGaussian` -> Rappresenta la gaussiana. Tutte le distribuzioni ereditano dalla classe `RooAbsPdf` (anche `RooAddPdf`). 
+- `RooAbsPdf` -> Rappresenta una pdf. Tutte le distribuzioni ereditano da questa (anche `RooAddPdf`). 
 
     Metodi importanti: 
+
     - `fitTo(RooAbsData & data, const RooLinkedList & cmdList)` -> Fitta la pdf al dataset (data). Il fit viene fatto ML unbinned o binned a seconda del dataset. Di default il fit viene fatto facendo MIGRAD, HESSE e MINOS in successione. Comunque basta passare le opzioni. 
     Restituisce un `RooFitResult *`.
     
@@ -118,27 +119,86 @@ Classi più usate:
 
     **Nota: Perchè passo \*MuMuHist e non MuMuHist (cioè passo l'oggetto puntato e non il puntatore)?** 
 
-    Il metodo `fitTo()` prende come primo argomento un tipo `RooAbsData &`, cioè una reference a un `RooAbsData` (la reference è un modo intelligente per evitare la copia dei dati durante la chiamata in una funzione e senza usare i puntatori). Quindi ho bisogno di un oggetto di tipo `RooAbsData` e non un `RooAbsData *`, quindi devo passare il puntatore deferenziato (*MuMuHist) e non il puntatore stesso (MuMuHist). 
+        Il metodo `fitTo()` prende come primo argomento un tipo `RooAbsData &`, cioè una reference a un `RooAbsData` (la reference è un modo intelligente per evitare la copia dei dati durante la chiamata in una funzione e senza usare i puntatori). Quindi ho bisogno di un oggetto di tipo `RooAbsData` e non un `RooAbsData *`, quindi devo passare il puntatore deferenziato (*MuMuHist) e non il puntatore stesso (MuMuHist). 
+
+    - `createNLL(RooAbsData & data, const RooLinkedList & cmdList)` -> Costruisce una rappresentazione di -log(L) della pdf su un dato dataset. Restituisce una `RooAbsReal *` 
     
+    - `generate(const RooArgSet & whatVars, ... opzioni)` -> Genera un nuovo dataset contenente la variabile specificata con gli eventi campionati dalla distribuzione. Restituisce un `RooDataSet *` Ci sono un sacco di opzioni e di diverse versioni, noi l'abbiamo usato principalmente così: 
+
+    ```cpp 
+    RooDataSet * nuovoDataSet = pdf.generate(nomeVariabile, numeroEventi); 
+    ``` 
+
+    dove `nomeVariabile` è il nome della `RooRealVar` da usare e `numeroEventi` è un intero che indica il numero di eventi da generare. 
+
+    Per ulteriori informazioni vedi la [documentazione completa](https://root.cern.ch/doc/master/classRooAbsPdf.html#a87926e1044acf4403d8d5f1d366f6591). 
+
     - `plotOn(RooPlot * frame, RooLinkedList & cmdList)` -> Plotta la pdf sul frame (preparato per la variabile da cui ho estratto il frame). Si possono usare una serie di opzioni. 
     Da notare che con l'opzione `Components(const char * nome_componente)` posso plottare una sola componente delle pdf composte (tipo re `RooAddPdf`). 
 
     - `paramOn(RooPlot * frmae, RooLinkedList & cmdList)` -> Aggiunge un box con i parametri da mostrare, di seguito alcune delle opzioni: 
     ![](./immagini_readme/opzioni_plot.png)
 
-    Tutte le opzioni per i vari metodi si possono trovare su [questa pagina](https://root.cern.ch/doc/master/classRooAbsPdf.html#af43c48c044f954b0e0e9d4fe38347551)
+    Tutte le opzioni per i vari metodi si possono trovare su [questa pagina](https://root.cern.ch/doc/master/classRooAbsPdf.html#af43c48c044f954b0e0e9d4fe38347551). 
+
+    Alcune cose utili: 
+        
+        - Cambiare la dimensione del font ai parametri dei fit plottati con `paramOn()`
+
+            ```cpp
+            xFrame->getAttText()->SetTextSize(0.025); 
+            ``` 
+
+            Nota che il metodo `getAttText()` restituisce un oggetto di tipo `TAttText()` che è una classe di Root normale con tutti i suoi metodi. **Da documentazione, di default la Text Size settata è 1.**
+
+        - Cambiare lo spessore della linea (anche eliminarla) del box dei parametri con `paramOn()`
+
+            ```cpp
+            xFrame->getAttLine()->SetLineWidth(0); 
+            ```
+
+        - Nota: Su come funziona `paramOn()`
+
+        ```cpp
+        totalPdf.paramOn(xFrame, Parameters(RooArgSet(meanCB, sigmaCB, nSig, mean, sigma, nSigGaussiana)),
+            Format("NEU", AutoPrecision(2)), 
+            Layout(0.45, 0.9, 0.9)); 
+        ```
+
+        `Format()` permette di inserire le opzioni di visualizzazione, il primo argomento selezione cosa viene mostrato, da documentazione: << "N" adds name, "E" adds error, "A" shows asymmetric error, "U" shows unit, "H" hides the value >>. Il secondo argomento determina il numero di cifre significative da mostrare nel riquadro.
+
+
+- `RooAbsReal` -> E' la classe astratta per oggetti che rappresentano un valore reale e implementa funzionalità comuni come la possibilità di plottare, calcolare gli integrali eccetera. Si incontra principalmente come valore di ritorno del metodo `createNLL()` della classe `RooAbsPdf` a rappresentare una Negative Log Likelihood. 
 
 - `RooFitResult` -> Rappresenta i risultati del fit. Oggetto restituito dal metodo `fitTo()`. 
     
     Metodi principali: 
     - `Print()` -> stampa i risultati del fit a schermo 
     - `correlationMatrix()` -> Restituisce la matrice di correlazione (a sua volta puoi fare `r->correlationMatrix().Print()`). 
+
+- `RooMinuit` -> E' una classe wrapper, rappresenta un'interfaccia tra Minuit e RooFit. 
+
+    Costruttore principale: 
+
+    `RooMinuit(RooAbsReal & function)` -> Costruisce l'interfaccia minuit per una data funzione. Quindi probabilmente gli passerai la funzione di likelihood generata con `pdf.createNLL()`. 
+
+    Metodi principali: 
+    - `migrad()` 
+    - `hesse()` 
+    - `migrad()`
+    - `minos()` 
+
+    In generale sono tutti i metodi da chiamare per minimizzare con diverse strategie la funzione da fittare. 
+
+- `RooDataset` **TODO** 
+
+    Metodi principali: 
+    - `write()`
 ## Es 4a: Fit con gaussiana + fondo con roofit
 [Pdf dell'esercitazione](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/esercitazione-roofit-invmass.pdf).
 [Pdf su Migrad, Hesse e Minos](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/Approfondimento3.pdf).
 
 Abbiamo fittato l'istogramma PsiPrimeMass_bin9 dal [file](./root_files/hlt_5_newSoftMuon_alsoInPsiPrimeWind.root) prima con gaussiana e chebychev e poi con crystal ball ed esponenziale. 
-
 ## Es 4b: Pull
 [Pdf dell'esercitazione](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/Exercise3b.pdf)
 
@@ -157,23 +217,6 @@ Anche se hai già plottato la pdf totale e dopo le sue componenti, devi plottare
 [Pdf](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/Exercise4-outline.pdf)
 
 Fit dello spettro della J/psi con una Crystal ball + una piccola gaussiana come segnale e una Chebychev come background. Disegnate anche le pull. 
-
-**Nota: Trovato il modo di cambiare la dimensione del font ai parametri dei fit plottati con `paramOn()`**
-
-```cpp
-xFrame->getAttText()->SetTextSize(0.025); 
-``` 
-
-Nota che il metodo `getAttText()` restituisce un oggetto di tipo `TAttText()` che è una classe di Root normale con tutti i suoi metodi. **Da documentazione, di default la Text Size settata è 1.**
-
-**Nota: Su come funziona `paramOn()`**
-```cpp
-totalPdf.paramOn(xFrame, Parameters(RooArgSet(meanCB, sigmaCB, nSig, mean, sigma, nSigGaussiana)),
-    Format("NEU", AutoPrecision(2)), 
-    Layout(0.45, 0.9, 0.9)); 
-```
-
-`Format()` permette di inserire le opzioni di visualizzazione, il primo argomento selezione cosa viene mostrato, da documentazione: << "N" adds name, "E" adds error, "A" shows asymmetric error, "U" shows unit, "H" hides the value >>. Il secondo argomento determina il numero di cifre significative da mostrare nel riquadro.
 
 **Cose da ricordare sui canvas**
 
@@ -220,14 +263,21 @@ L'utente può scegliere se le code delle CB sono fissate o no (cioè stesso para
 **Finito**
 
 # Es 7: Uso dei dati di Es 4 per fittare tutti i bin (da 1 a 23)
-Bisogna riprendere il fit fatto nella Es 4 e questa volta fittare in una volta sola tutti gli istogrammi (da PsiPrimeMass_bin1 a PsiPrimeMass_bin23) e fare un TGraphErrors dove inserire le medie e le sigma fittate.
+Bisogna riprendere il fit fatto nella Es 4 e questa volta fittare in una volta sola tutti gli istogrammi (da PsiPrimeMass_bin1 a PsiPrimeMass_bin23) e fare un TGraphErrors dove inserire le sigma vs le rapidità (valore riportato sul titolo di ogni istogramma in questione, va da -2.1 a 2.1 con passo di 0.2).
 Vedere se si riesce a fittare la distribuzione che ne deriva.
-**Finito ma il fit viene un po' a schifo a me (a Nicola no). Capire perchè.**
+
+**Finito ma il fit viene un po' a schifo a me (a Nicola no) anche se i parametri iniziali del fit sono gli stessi.**
+
+Comunque nella cartella [es7_fit_di_tutto](./es7_fit_di_tutto) ci sono entrambe le macro, [questa](./es7_fit_di_tutto/macro.C) è la mia, [questa](./es7_fit_di_tutto/myRapidity.C) è quella di Nicola. 
 
 # Es 8: Fit decadimento Phi
 [Pdf](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/Fit-to-Phi-mass-withVoigtian.pdf)
 
+Fit identico alle esercitazioni 5 e 6. Fit dell'istogramma e disegno delle pull. In questo caso usata una Voigtiana e una Chebychev a 5 parametri come segnale e fondo.  
+
 # Es 9: Generazione di dati MonteCarlo e fit
+
+Generazione di numero variabile (a scelta dell'utente tramite parametro) di dati Monte Carlo a partire da una distribuzione che ha per segnale la convoluzione tra Breit Wigner e Gaussiana e per background un'esponenziale. La generazione random avviene con il metodo `generate()` della classe `RooAbsPdf` e il seme random viene settato a partire dal tempo tramite la funzione funzione `RooRandom::randomGenerator()`. Successivamente viene effettuata la minimizzazione della negative log likelihood tramite MIGRAD e il tutto viene plottato. Viene inoltre calcolato il tempo impiegato dal minimizzatore se l'utente lo richiede.  
 
 ## Nota: Come calcolare il tempo trascorso tra due punti del programma
 
@@ -241,16 +291,21 @@ std::chrono::steady_clock::time_point tempoIniziale{std::chrono::steady_clock::n
 std::chrono::steady_clock::time_point tempoFinale{std::chrono::steady_clock::now()};
 
 // Prendo la differenza di tempo in stringa
-std::string deltaTime{std::to_string(std::chrono::duration_cast<std::chrono::seconds>(tempoFinale - tempoIniziale).count()};
+std::string deltaTime{std::to_string(std::chrono::duration_cast<std::chrono::seconds>(tempoFinale - tempoIniziale).count())};
 ```
 Con il duration_cast converte il delta time in secondi, poi uso la funzione to_string() per convertire in stringa (e poterla stampare).
 Per maggiori info (tipo se vuoi in minuti o altre unità) si può vedere la documentazione della libreria [chrono](https://en.cppreference.com/w/cpp/chrono).
 
+**Finito**
 # Es 10: Fit bidimensionale
 [Pdf]()
 
 ## Nota:
-Qui non ho caricato il file root necessario (myloop.root) nel repository perchè è grande circa 500Mb.
+    Qui non ho caricato il file root necessario (myloop.root) nel repository perchè è grande circa 500Mb.
+
+# Es 11: Sottrazione del fondo 
+
+# Es 12: Profile likelihood
 
 # Note sulla versione di CINT e root.
 Versione di root locale: 6.22/02 (built from tag, 17 August 2020).

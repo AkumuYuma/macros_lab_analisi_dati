@@ -106,6 +106,7 @@ void macro(bool fixedTails = true, const TString bkg = "exp", const TString exte
 
     totalPdf->plotOn(xFrame, rf::LineColor(kRed)); // Correzione per i pull
     totalPdf->paramOn(xFrame, Parameters(RooArgSet(meanCB1, sigmaCB1, nSig1, meanCB2, sigmaCB2, nSig2)), Layout(0.6, 0.9, 0.9)) ; 
+
     xFrame->getAttText()->SetTextSize(0.02); 
 
     // -------------------- Pull 

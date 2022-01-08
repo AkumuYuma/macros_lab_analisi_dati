@@ -12,7 +12,7 @@ void macro() {
 
 
     // Numero di istogrammi 
-    int numeroIstogrammi{21}; 
+    const int numeroIstogrammi{21}; 
 
     RooDataHist * histoList[numeroIstogrammi];
     
@@ -73,6 +73,7 @@ void macro() {
         totalPdf.plotOn(xFrame, rf::LineColor(kRed));
         totalPdf.plotOn(xFrame, rf::Components(RooArgSet(cbPdf)), rf::LineColor(kGreen));
         totalPdf.plotOn(xFrame, rf::Components(chebyPdf), rf::LineStyle(kDashed));
+        totalPdf.plotOn(xFrame, rf::LineColor(kRed));
         xFrame->Draw(); 
 
         std::string nomeFileStringa{"./Plots/fit_" + std::to_string(i + 2) + ".png"};
@@ -102,10 +103,10 @@ void macro() {
     graph.SetMarkerColor(kRed); 
     graph.SetMinimum(0.02); 
     graph.SetMaximum(0.1); 
-    TF1 f1{"f1", "pol2", -2.5, 2.5}; 
-    f1.SetParameters(0.08, 0.08, 0); 
-    graph.Fit("pol2"); 
-    gStyle->SetOptFit(1111); 
+    // TF1 f1{"f1", "pol2", -2.5, 2.5}; 
+    // f1.SetParameters(0.08, 0.08, 0); 
+    // graph.Fit("pol2"); 
+    // gStyle->SetOptFit(1111); 
     graph.Draw("ap"); 
     myC.SaveAs("./Plots/Graph.png"); 
 
