@@ -142,14 +142,13 @@ Classi più usate:
     Tutte le opzioni per i vari metodi si possono trovare su [questa pagina](https://root.cern.ch/doc/master/classRooAbsPdf.html#af43c48c044f954b0e0e9d4fe38347551). 
 
     Alcune cose utili: 
-        
         - Cambiare la dimensione del font ai parametri dei fit plottati con `paramOn()`
 
             ```cpp
             xFrame->getAttText()->SetTextSize(0.025); 
             ``` 
 
-            Nota che il metodo `getAttText()` restituisce un oggetto di tipo `TAttText()` che è una classe di Root normale con tutti i suoi metodi. **Da documentazione, di default la Text Size settata è 1.**
+        Nota che il metodo `getAttText()` restituisce un oggetto di tipo `TAttText()` che è una classe di Root normale con tutti i suoi metodi. **Da documentazione, di default la Text Size settata è 1.**
 
         - Cambiare lo spessore della linea (anche eliminarla) del box dei parametri con `paramOn()`
 
