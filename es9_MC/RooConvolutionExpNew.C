@@ -97,10 +97,7 @@ void RooConvolutionExpNew(int events = 1000, TString calctime = "yes", int bins=
   // Tutto questo è perchè ho bisogno di concatenare le stringhe e poi usare stringhe c-like
   std::string nomeFile{"./txt_files/" + name + "_events.txt"};
   const char * nomeFileC = nomeFile.c_str();
-  // Tolgo il qualificatore const
-  char * bufferstring = const_cast<char *>(nomeFileC); 
-  // Scrivo il dataset nel file con nome contenuto in bufferstring 
-  data->write(bufferstring);
+  data->write(nomeFileC);
 
   cout <<"\nFitting " << events << " events\n" << endl ;
 

@@ -35,7 +35,7 @@ using namespace RooFit;
 #define MASS_MIN            5.0
 #define MASS_MAX            6.0
 #define MASS_PEAK           BP_MASS
-#define SOURCE              "myloop.root"
+#define SOURCE              "myloop.root" 
 
 void myfitter2d()
 {
@@ -44,7 +44,7 @@ void myfitter2d()
     RooRealVar ct("ct","ct",-0.02,0.28);
     RooRealVar cterr("cterr","cterr",0.0001,0.008);
     
-    //outout
+    // Creo output file () e NTupla
     TFile *fout = new TFile("myfitter2d.root","recreate");     // output file    
     TNtupleD *_nt = new TNtupleD("_nt","_nt","mass:ct:cterr"); // output ntuple
     
@@ -53,100 +53,108 @@ void myfitter2d()
     TTree *tin = (TTree*)fin->Get("ntkp");
     
     // setting up rootuple for reading
-    ReducedBranches br;
-    br.setbranchadd(tin);
+    ReducedBranches br; // Creo un oggetto della classe 
+    br.setbranchadd(tin); // Chiamo il metodo per riempire le branch con gli indirizzi di memoria.
     
     // reading rootuple
-    for (int evt=0;evt<tin->GetEntries();evt++) 
-       {
+    for (int evt=0; evt < tin->GetEntries(); evt++) {
+
         tin->GetEntry(evt);
-	// 
-	// cuts to select events/cands
+
+        // cuts to select events/cands (non prendo alcuni eventi)
         if (br.hltbook[HLT_Dimuon16_Jpsi_v1]!=1) continue;
         if (br.vtxprob<=0.15) continue;
         if (br.tk1pt<=2.0) continue;
-        //
-	// filling the 3D vector in the output ntuple
+
+        // filling the 3D vector in the output ntuple
         double var[3];
         var[0] = br.mass;
         var[1] = br.ctau2d;
         var[2] = br.ctau2derr;
         _nt->Fill(var);
        }
-    //
-    fin->Close();
-    //
+
+    fin->Close(); // Chiuso il file di input 
+
+
     // the dataset contains only the 3 variables of interest
+    // Creo un dataset dalla ntupla _nt (tridimensionale) su tre variabili (mass, ct, cterr)
     RooDataSet *data = new RooDataSet("data","data",_nt,RooArgSet(mass,ct,cterr));
-    //
-    /////////////////////////////////////////////////////
-    //
+
+
     // initialization
-    //
+    // Prendo il numero di valori ottenuti dalla differenza tra i due cut. 
     double n_signal_initial = data->sumEntries(TString::Format("abs(mass-%g)<0.015",MASS_PEAK))
     - data->sumEntries(TString::Format("abs(mass-%g)<0.030&&abs(mass-%g)>0.015",MASS_PEAK,MASS_PEAK));
-    //
+
+    // Eventi totali - valori ottenuti prima 
     double n_combinatorial_initial = data->sumEntries() - n_signal_initial;
-    //
+
+
     //-----------------------------------------------------------------
-    //
+
     // signal PDF 
-    //===========
-    //
+
+    // MASSA
     // double gaussian for the signal in mass
-    //
     RooRealVar m_mean("m_mean","m_mean",MASS_PEAK,MASS_MIN,MASS_MAX);
     RooRealVar m_sigma1("m_sigma1","m_sigma1",0.016,0.001,0.045);
     RooRealVar m_sigma2("m_sigma2","m_sigma2",0.035,0.001,0.090);
     RooRealVar m_fraction("m_fraction","m_fraction",0.5);
-    //
+    // Stessa media ma diversa sigma 
     RooGaussian m_gaussian1("m_gaussian1","m_gaussian1",mass,m_mean,m_sigma1);
     RooGaussian m_gaussian2("m_gaussian2","m_gaussian2",mass,m_mean,m_sigma2);
-    //
+
+    // Pdf 
     RooAddPdf pdf_m_signal("pdf_m_signal","pdf_m_signal",RooArgList(m_gaussian1,m_gaussian2),RooArgList(m_fraction));
-    //
+
+    // TEMPO 
     // exponential convoluted with gaussian resolution for the signal in ct
-    //
     RooRealVar res_sig_mean("res_sig_mean","res_sig_mean",0.0,-1.,1.);
     RooRealVar res_sig_sigma("res_sig_sigma","res_sig_sigma",1.0,0.3,2.0);
-    //
+    
+    // E' un modello di risoluzione (da convolvere con il RooDecay) 
     RooGaussModel res_signal("res_signal","res_signal",ct,res_sig_mean,res_sig_sigma,cterr);
-    //
+
+    // Modello di decay single sided (da convolvere con modello di risoluzione)
+    // Pdf 
     RooRealVar ctau("ctau","ctau",0.04911,0.010,0.090);
     RooDecay pdf_t_signal("pdf_t_signal","pdf_t_signal",ct,ctau,res_signal,RooDecay::SingleSided);
-    //
+
     // bidimensional signal pdf
-    //
+    // Prodotto delle pdf di massa e tempo 
     RooProdPdf pdf_signal("pdf_signal","pdf_signal", RooArgSet(pdf_m_signal, pdf_t_signal));
-    //
-    //
+
+
+    // Background combinatoriale  
     // combinatorial background PDF (prompt or non-prompt J/psi + random track)
-    //=========================================================================
-    //
+
+    // MASSA 
     // exponential for the combinatorial background in mass
-    //
     RooRealVar m_par1("m_par1","m_par1",-0.3,-2.,+2.);
     RooExponential pdf_m_combinatorial("pdf_m_combinatorial","pdf_m_combinatorial",mass,m_par1);
-    //
+
+    // TEMPO 
+
+    // Non-prompt 
     // exponential convoluted with gaussian resolution for the non-prompt background in ct
-    //
     RooRealVar ctau_nonprompt("ctau_nonprompt","ctau_nonprompt",0.0500, 0.0010, 0.1000);
+    // pdf 
     RooDecay pdf_t_nonprompt("pdf_t_nonprompt","pdf_t_nonprompt",ct,ctau_nonprompt,res_signal,RooDecay::SingleSided);
-    //
+
+    // prompt 
     // Sum of gaussian resolution function (res_signal) for prompt background in ct and the previous exponential for NP-bkg
-    //
     RooRealVar prompt_fraction("prompt_fraction","prompt_fraction",0.5,0.0,1.0); 
-    //
+    // pdf 
     RooAddPdf pdf_t_combinatorial("pdf_t_combinatorial","pdf_t_combinatorial",RooArgList(res_signal,pdf_t_nonprompt),RooArgList(prompt_fraction));
-    //
-    // bidimensional combinatorial-bkg pdf
-    //
+
+    // Background totale (prodotto)
+    // bidimensional combinatorial-bkg pdf 
     RooProdPdf pdf_combinatorial("pdf_combinatorial","pdf_combinatorial",RooArgSet(pdf_m_combinatorial,pdf_t_combinatorial));
-    //
-    //-----------------------------------------------------------------
-    //
+
+
+    // Background fisico 
     // B->J/psi+track+X background PDF
-    //================================
     // 
     // single gaussian for the physical background in mass
     //
@@ -162,9 +170,8 @@ void myfitter2d()
     // bidimensional physical-bkg pdf
     //
     RooProdPdf pdf_jpsix("pdf_jpsix","pdf_jpsix",RooArgSet(pdf_m_jpsix, pdf_t_jpsix));
-    //
-    //-----------------------------------------------------------------
-    // 
+
+
     // FULL MODEL (SIGNAL + 2 BKGS)
     //
     // define coefficients for addition of the 3 bidimentional pdfs
@@ -176,14 +183,15 @@ void myfitter2d()
     RooAddPdf model("model","model",
                     RooArgList(pdf_signal, pdf_combinatorial, pdf_jpsix),
                     RooArgList(n_signal, n_combinatorial, n_jpsix));
-    //
-    /////////////////////////////////////////////////////////////////////
-    //
+
+
     // finally go for fitting !
     //
     model.fitTo(*data,Minos(DO_MINOS),NumCPU(NUMBER_OF_CPU),Offset(kTRUE));
     //
     // go to display plots with fits superimposed on data distributions
+
+// Plot 
 #if DISPLAY
     //
     // Display mass plots

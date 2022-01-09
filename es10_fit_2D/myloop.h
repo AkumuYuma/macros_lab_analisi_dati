@@ -1,4 +1,7 @@
+#ifndef MYLOOP_H
+#define MYLOOP_H
 
+// Definizioni di costanti (masse)
 #define MUON_MASS    0.10565837
 #define PION_MASS    0.13957018
 #define KAON_MASS    0.493677
@@ -16,6 +19,7 @@
 #define LAMBDAB_MASS 5.6195
 
 // HLT paths to be booked
+#define N_HLT_BOOKINGS 6 // Numero di istogrammi da prendere 
 enum {
     HLT_Dimuon0_Jpsi_Muon_v1,            // 0
     HLT_Dimuon10_Jpsi_Barrel_v1,         // 1
@@ -23,7 +27,6 @@ enum {
     HLT_Dimuon20_Jpsi_v1,                // 3
     HLT_DoubleMu4_3_Jpsi_Displaced_v1,   // 4
     HLT_DoubleMu4_JpsiTrk_Displaced_v2,  // 5
-    N_HLT_BOOKINGS
 };
 
 const char HLT_paths[N_HLT_BOOKINGS][64] = {
@@ -36,10 +39,12 @@ const char HLT_paths[N_HLT_BOOKINGS][64] = {
 };
 
 class ReducedBranches{
+
     public:
     int     run;
     int     event;
 
+    // Tutte le caratteristiche 
     int     type;  // B hadron information
     double  mass;
     double  pt;
@@ -104,7 +109,12 @@ class ReducedBranches{
     int nhltbook; // triggers
     int hltbook[N_HLT_BOOKINGS];
     
+    
     void regTree(TTree *root){
+        /**
+         * Crea una branch in un tree per ogno attributo della classe 
+         * 
+         */
         root->Branch("run",&run,"run/I");
         root->Branch("event",&event,"event/I");
         root->Branch("type",&type,"type/I");
@@ -166,7 +176,12 @@ class ReducedBranches{
         root->Branch("nhltbook",&nhltbook,"nhltbook/I");
         root->Branch("hltbook",hltbook,"hltbook[nhltbook]/I");
     }
+
     void setbranchadd(TTree *root){
+        /**
+         * Inserisce gli attributi della classe nelle branch di un TTree (Ne associa gli address di memoria)
+         * 
+         */
         root->SetBranchAddress("run",&run);
         root->SetBranchAddress("event",&event);
         root->SetBranchAddress("type",&type);
@@ -229,3 +244,5 @@ class ReducedBranches{
         root->SetBranchAddress("hltbook",hltbook);
     }
 };
+
+#endif

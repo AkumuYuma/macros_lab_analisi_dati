@@ -1,6 +1,12 @@
+#ifndef PLOT_DRESSING_H
+#define PLOT_DRESSING_H
 
-TCanvas *canvasDressing(TString name = "c1")
-{
+TCanvas *canvasDressing(TString name = "c1") {
+    /** 
+     * Definisce tutte le opzioni grafiche del canvas, crea un canvas con quelle opzioni e lo restituisce. 
+     * @param: TString name: nome del canva 
+     * @return: TCanvas *: il canvas con le opzioni grafiche 
+     */
     gStyle->SetOptStat(0);
     gStyle->SetOptFit(0);
     gStyle->SetPalette(1);
@@ -42,8 +48,10 @@ TCanvas *canvasDressing(TString name = "c1")
     return c1;
 }
 
-void LegendMassProj()
-{
+void LegendMassProj() {
+    /**
+     * Definisce e disegna la legenda per il plot della massa sul canvas attivo. 
+     */
     TPaveText *pt = new TPaveText(0.3347987,0.94,0.6652013,0.995,"blNDC");
     pt->SetName("title");
     pt->SetBorderSize(0);
@@ -106,8 +114,10 @@ void LegendMassProj()
     tex->Draw();
 }
 
-void LegendLifetimeProj()
-{
+void LegendLifetimeProj() {
+    /**
+     * Definisce e disegna la legenda per il plot della lifetime sul canvas attivo. 
+     */
     TPaveText *pt = new TPaveText(0.3347987,0.94,0.6652013,0.995,"blNDC");
     pt->SetName("title");
     pt->SetBorderSize(0);
@@ -171,3 +181,4 @@ void LegendLifetimeProj()
     tex->Draw();
 }
 
+#endif

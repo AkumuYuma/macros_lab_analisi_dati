@@ -98,6 +98,20 @@ Il costruttore prende anche una `RooRealVar` come variabile dell'istogramma.
 Nota che lui crea un `RooDataHist` nell'[esercitazione 4a](./es4_roofit/psiPrime_fit.C#L35). 
 In quel caso al posto del costruttore scritto sopra, ne usa un altro in cui passa un `RooCmdArg` al post del `TH1 *`. Per fare questo è necessario convertire l'istogramma in `RooCmdArg` e per questo usa `Import`. 
 
+### `RooDataset` -> E' una classe per contenere dati unbinned.
+
+E' il corrispondente unbinned di `RooDataHist`. 
+
+Metodi principali: 
+- `write()` -> Scrive il conenuto del dataset in un file ASCII con il nome specificato.
+
+Ha due versioni, una in cui l'argomento è `const char *` e indica il nome del file (usato nell'[esercitazione 9](./es9_MC/RooConvolutionExpNew#100)), l'altra in cui si passa direttamente l'`ofstream &`. 
+
+- `sumEntries() const` -> Restituisce il numero di elementi nel dataset, cioè la somma di tutti i pesi.
+
+- `sumEntries(const char * cutSpec, const char * cutRange = 0) const` -> Restituisce la somma dei pesi di tutte le entrate che matchano `cutSpec` (se specificato) e nel range di nomi `cutRange` (se specificato). 
+
+- `createHistogram()` -> Crea e riempie un istogramma di ROOT `TH1`, `TH2` o `TH3`. 
 ### `Import` -> funzione di RooFit. 
 
 Restituisce un oggetto della classe `RooCmdArg`. Permette di importare gli oggetti tipo `TH1` (ma non solo) per convertirli in `RooDataHist`. 
@@ -203,10 +217,6 @@ Metodi principali:
 
 In generale sono tutti i metodi da chiamare per minimizzare con diverse strategie la funzione da fittare. 
 
-### `RooDataset` **TODO** 
-
-Metodi principali: 
-- `write()`
 ## Es 4a: Fit con gaussiana + fondo con roofit
 [Pdf dell'esercitazione](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/esercitazione-roofit-invmass.pdf).
 [Pdf su Migrad, Hesse e Minos](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/Approfondimento3.pdf).
@@ -289,6 +299,7 @@ Comunque nella cartella [es7_fit_di_tutto](./es7_fit_di_tutto) ci sono entrambe 
 Fit identico alle esercitazioni 5 e 6. Fit dell'istogramma e disegno delle pull. In questo caso usata una Voigtiana e una Chebychev a 5 parametri come segnale e fondo.  
 
 # Es 9: Generazione di dati MonteCarlo e fit
+[pdf](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/lezione-generaz-interpolaz-roofit.pdf)
 
 Generazione di numero variabile (a scelta dell'utente tramite parametro) di dati Monte Carlo a partire da una distribuzione che ha per segnale la convoluzione tra Breit Wigner e Gaussiana e per background un'esponenziale. La generazione random avviene con il metodo `generate()` della classe `RooAbsPdf` e il seme random viene settato a partire dal tempo tramite la funzione funzione `RooRandom::randomGenerator()`. Successivamente viene effettuata la minimizzazione della negative log likelihood tramite MIGRAD e il tutto viene plottato. Viene inoltre calcolato il tempo impiegato dal minimizzatore se l'utente lo richiede.  
 
@@ -311,14 +322,36 @@ Per maggiori info (tipo se vuoi in minuti o altre unità) si può vedere la docu
 
 **Finito**
 # Es 10: Fit bidimensionale
-[Pdf]()
+[Pdf](./pdf_esercitazioni/es10)
+
+Fit bidimensionale in massa e tempi. Ci sono tre file sorgente: 
+
+- [plotDressing2D.h](./es10_fit_2D/plotDressing2D.h) -> Funzioni per opzioni grafiche di plot 
+- [myloop.h](./es10_fit_2D/myloop.h) -> Definizione di classe per creare e riempire un TTree con il modello da fittare. 
+- [myfitter2d.cc](./es10_fit_2D/myfitter2d.cc) -> Macro effettiva. 
+
+Serie di operazioni svolte nella macro in ordine: 
+ 
+1. Letto il `TTree` nel file di input, vengono applicati i tagli desiderati sulle variabili e viene riempita un `TNTupleD` tridimensionale. 
+2. Creato un `RooDataSet` con la ntupla appena riempita e sulle `RooRealVar` prima definite 
+3. Trovato il numero di eventi combinatoriali (in un modo abbastanza oscuro)
+4. Costruito il modello di fitting: 
+    - Segnale: Doppia gaussiana (massa) x esponenziale convoluta con risoluzione gaussiana (tempo)
+    - Background: 
+        - Combinatoriale: Esponenziale (massa) x (esponenziale convoluta con risoluzione gaussiana + funzione di risoluzione (quella di prima) ) (tempo) 
+        - Fisico: Singola gaussiana x esponenziale convoluta con risoluzione gaussiana 
+5. Fitto 
+6. Faccio il plot
 
 ## Nota:
     Qui non ho caricato il file root necessario (myloop.root) nel repository perchè è grande circa 500Mb.
 
 # Es 11: Sottrazione del fondo 
 
+Non c'è un pdf 
+
 # Es 12: Profile likelihood
+[pdf](./pdf_esercitazioni/es12)
 
 # Note sulla versione di CINT e root.
 Versione di root locale: 6.22/02 (built from tag, 17 August 2020).
