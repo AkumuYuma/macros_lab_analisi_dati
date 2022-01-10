@@ -1,4 +1,39 @@
-# Raccolta di macro per il framework root (Cern)
+
+- [Introduzione](#introduzione)
+- [Es 1: Stacked plot](#es-1-stacked-plot)
+- [Es 2: Cms vs Alice](#es-2-cms-vs-alice)
+- [Es 3: Curva roc e test delle ipotesi](#es-3-curva-roc-e-test-delle-ipotesi)
+  - [NOTA: sulla conversione tra stringhe c++ e stringhe c-like.](#nota-sulla-conversione-tra-stringhe-c-e-stringhe-c-like)
+- [Es 4: Fit con roofit](#es-4-fit-con-roofit)
+  - [Appunti su roofit](#appunti-su-roofit)
+    - [`RooRealVar` -> Rappresenta una variabile reale.](#roorealvar---rappresenta-una-variabile-reale)
+    - [`RooPlot` -> Rappresenta un frame per i plot](#rooplot---rappresenta-un-frame-per-i-plot)
+    - [`RooAbsData` -> Classe per rappresentare dati binnati e unbinnati.](#rooabsdata---classe-per-rappresentare-dati-binnati-e-unbinnati)
+      - [`RooDataHist` -> Rappresenta un istogramma, contiene dati binnati. (Eredita da `RooAbsData`)](#roodatahist---rappresenta-un-istogramma-contiene-dati-binnati-eredita-da-rooabsdata)
+      - [`RooDataset` -> E' una classe per contenere dati unbinned. (Eredita da `RooAbsData`)](#roodataset---e-una-classe-per-contenere-dati-unbinned-eredita-da-rooabsdata)
+    - [`Import` -> funzione di RooFit.](#import---funzione-di-roofit)
+    - [`RooArgList` -> E' un oggetto container che tiene diversi oggetti di tipo `RooAbsArg` (e le classi che derivano da essa).](#rooarglist---e-un-oggetto-container-che-tiene-diversi-oggetti-di-tipo-rooabsarg-e-le-classi-che-derivano-da-essa)
+    - [`RooArgSet` -> Dovrebbe funzionare più o meno come `RooArgList`.](#rooargset---dovrebbe-funzionare-più-o-meno-come-rooarglist)
+    - [`RooAbsPdf` -> Rappresenta una pdf. Tutte le distribuzioni ereditano da questa (anche `RooAddPdf`).](#rooabspdf---rappresenta-una-pdf-tutte-le-distribuzioni-ereditano-da-questa-anche-rooaddpdf)
+    - [`RooAbsReal` -> E' la classe astratta per oggetti che rappresentano un valore reale.](#rooabsreal---e-la-classe-astratta-per-oggetti-che-rappresentano-un-valore-reale)
+    - [`RooFitResult` -> Rappresenta i risultati del fit. Oggetto restituito dal metodo `fitTo()`.](#roofitresult---rappresenta-i-risultati-del-fit-oggetto-restituito-dal-metodo-fitto)
+    - [`RooMinuit` -> E' una classe wrapper, rappresenta un'interfaccia tra Minuit e RooFit.](#roominuit---e-una-classe-wrapper-rappresenta-uninterfaccia-tra-minuit-e-roofit)
+  - [Es 4a: Fit con gaussiana + fondo con roofit](#es-4a-fit-con-gaussiana--fondo-con-roofit)
+  - [Es 4b: Pull](#es-4b-pull)
+- [Es 5: Fit spettro J/#Psi](#es-5-fit-spettro-jpsi)
+- [Es 6: Fit con pull (esercitazione con esame 2017)](#es-6-fit-con-pull-esercitazione-con-esame-2017)
+- [Es 7: Uso dei dati di Es 4 per fittare tutti i bin (da 1 a 23)](#es-7-uso-dei-dati-di-es-4-per-fittare-tutti-i-bin-da-1-a-23)
+- [Es 8: Fit decadimento Phi](#es-8-fit-decadimento-phi)
+- [Es 9: Generazione di dati MonteCarlo e fit](#es-9-generazione-di-dati-montecarlo-e-fit)
+  - [Nota: Come calcolare il tempo trascorso tra due punti del programma](#nota-come-calcolare-il-tempo-trascorso-tra-due-punti-del-programma)
+- [Es 10: Fit bidimensionale](#es-10-fit-bidimensionale)
+  - [Nota:](#nota)
+- [Es 11: Sottrazione del fondo](#es-11-sottrazione-del-fondo)
+- [Es 12: Profile likelihood](#es-12-profile-likelihood)
+- [Note sulla versione di CINT e root.](#note-sulla-versione-di-cint-e-root)
+
+
+# Introduzione
 Raccolta di macro scritte durante il corso di analisi dati (terzo semestre magistrale).
 
 Le macro sono quelle passate dal professore durante le lezioni, anche presenti sul sito [del corso](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/scientific-data-analysis-laboratory-2021-2022.html),
@@ -7,8 +42,6 @@ alle quali ho applicato alcune modifiche. (Principalmente stilistiche e di refac
 Ogni cartella è un'esercitazione. Ogni cartella contiene un file .C (la macro), una cartella chiamata root_files, in cui vengono letti e scritti i dati,
 e una cartella Plots, in cui vengono salvati i plot generati dalle macro.
 
-
-**TODO** Inserire breve descrizione di ogni esercitazione e pdf
 
 # Es 1: Stacked plot
 [Pdf dell'esercitazione](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/esercitazione-1.pdf)
