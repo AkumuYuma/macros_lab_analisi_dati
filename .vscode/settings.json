@@ -12,6 +12,10 @@
         "psi_prime_factory.C": "cpp",
         "phiKK_fit.C": "cpp",
         "esegui.C": "cpp",
-        "RooConvolutionExpNew.C": "cpp"
+        "RooConvolutionExpNew.C": "cpp",
+        "B0s_bkgsub-1.C": "cpp",
+        "sidesub.C": "cpp",
+        "yield.C": "cpp",
+        "yield_1.C": "cpp"
     }
 }

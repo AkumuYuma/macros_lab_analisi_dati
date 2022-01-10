@@ -84,7 +84,29 @@ Metodi importanti:
 - `addObject()` -> Aggiunge un oggetto al frame per disegnarlo. Prende come argomento un `TObject *`. 
     
 
-### `RooDataHist` -> Rappresenta un istogramma. 
+### `RooAbsData` -> Classe per rappresentare dati binnati e unbinnati. 
+
+Metodi principali: 
+- `createHistogram()` -> Crea e riempie un istogramma di ROOT `TH1`, `TH2` o `TH3`. 
+
+- `reduce(const char * cut)` -> Filtra il dataset applicato il cut 
+
+Esempi in esercitazione 11:  
+```cpp
+RooDataSet* b0sDataNonPrompt = (RooDataSet*) b0sData->reduce(RooFormulaVar("displacement","dimuonditrk_ctauPV/dimuonditrk_ctauErrPV>3.0",RooArgList(dimuonditrk_ctauErrPV,dimuonditrk_ctauPV)));
+```
+
+Questo applica il cut tale che il rapporto `dimuonditrk_ctauPV/dimuonditrk_ctauErrPV` sia maggiore di 3. 
+
+Successivamente viene usato anche per prendere una sola variabile dal dataset: 
+
+```cpp 
+RooDataSet* b0sDataNonPromptMass = (RooDataSet*) b0sDataNonPrompt->reduce(SelectVars(RooArgSet(dimuonditrk_m_rf_c,masskk))); 
+```
+
+L'opzione `SelectVars()` permette di selezionare solo una (o più variabili) da inserire nel nuovo dataset.
+
+#### `RooDataHist` -> Rappresenta un istogramma, contiene dati binnati. (Eredita da `RooAbsData`) 
 
 Diversi costruttori, gli argomenti importanti sono: 
 
@@ -98,7 +120,7 @@ Il costruttore prende anche una `RooRealVar` come variabile dell'istogramma.
 Nota che lui crea un `RooDataHist` nell'[esercitazione 4a](./es4_roofit/psiPrime_fit.C#L35). 
 In quel caso al posto del costruttore scritto sopra, ne usa un altro in cui passa un `RooCmdArg` al post del `TH1 *`. Per fare questo è necessario convertire l'istogramma in `RooCmdArg` e per questo usa `Import`. 
 
-### `RooDataset` -> E' una classe per contenere dati unbinned.
+#### `RooDataset` -> E' una classe per contenere dati unbinned. (Eredita da `RooAbsData`) 
 
 E' il corrispondente unbinned di `RooDataHist`. 
 
@@ -111,7 +133,6 @@ Ha due versioni, una in cui l'argomento è `const char *` e indica il nome del f
 
 - `sumEntries(const char * cutSpec, const char * cutRange = 0) const` -> Restituisce la somma dei pesi di tutte le entrate che matchano `cutSpec` (se specificato) e nel range di nomi `cutRange` (se specificato). 
 
-- `createHistogram()` -> Crea e riempie un istogramma di ROOT `TH1`, `TH2` o `TH3`. 
 ### `Import` -> funzione di RooFit. 
 
 Restituisce un oggetto della classe `RooCmdArg`. Permette di importare gli oggetti tipo `TH1` (ma non solo) per convertirli in `RooDataHist`. 
@@ -161,7 +182,7 @@ Il costruttore di `RooAddPdf` prende una `RooArgList` che indichi la lista di pd
     - `plotOn(RooPlot * frame, RooLinkedList & cmdList)` -> Plotta la pdf sul frame (preparato per la variabile da cui ho estratto il frame). Si possono usare una serie di opzioni. 
     Da notare che con l'opzione `Components(const char * nome_componente)` posso plottare una sola componente delle pdf composte (tipo re `RooAddPdf`). 
 
-    - `paramOn(RooPlot * frmae, RooLinkedList & cmdList)` -> Aggiunge un box con i parametri da mostrare, di seguito alcune delle opzioni: 
+    - `paramOn(RooPlot * frame, RooLinkedList & cmdList)` -> Aggiunge un box con i parametri da mostrare, di seguito alcune delle opzioni: 
     ![](./immagini_readme/opzioni_plot.png)
 
     Tutte le opzioni per i vari metodi si possono trovare su [questa pagina](https://root.cern.ch/doc/master/classRooAbsPdf.html#af43c48c044f954b0e0e9d4fe38347551). 
@@ -197,6 +218,16 @@ Il costruttore di `RooAddPdf` prende una `RooArgList` che indichi la lista di pd
 
 Implementa funzionalità comuni come la possibilità di plottare, calcolare gli integrali eccetera. Si incontra principalmente come valore di ritorno del metodo `createNLL()` della classe `RooAbsPdf` a rappresentare una Negative Log Likelihood. 
 
+Metodi principali: 
+
+- `createProfile(RooRealVar & var)` -> Crea la profile likelihood per il parametro specificato. L'uso è tipo: 
+```cpp 
+RooAbsReal * nll = modello.createNLL(istogramma); 
+RooAbsReal * profile = nll->createProfile(variabile);  
+```
+
+Usata nell'esercitazione 9 e 12 
+
 ### `RooFitResult` -> Rappresenta i risultati del fit. Oggetto restituito dal metodo `fitTo()`. 
     
 Metodi principali: 
@@ -214,8 +245,11 @@ Metodi principali:
 - `hesse()` 
 - `migrad()`
 - `minos()` 
+- `contour()` -> Crea e disegna un `TH2` con gli errori sui profili dei parametri fino a 6 sigma. (Usata in esercitazione 12)
 
 In generale sono tutti i metodi da chiamare per minimizzare con diverse strategie la funzione da fittare. 
+
+Usata nell'es 9 e 12 
 
 ## Es 4a: Fit con gaussiana + fondo con roofit
 [Pdf dell'esercitazione](https://www.ba.infn.it/~pompili/teaching/data_analysis_lab/esercitazione-roofit-invmass.pdf).
@@ -347,11 +381,38 @@ Serie di operazioni svolte nella macro in ordine:
     Qui non ho caricato il file root necessario (myloop.root) nel repository perchè è grande circa 500Mb.
 
 # Es 11: Sottrazione del fondo 
+Non c'è un pdf.
 
-Non c'è un pdf 
+1. Prendo le variabili dal file e faccio un `RooDataSet`. 
+2. Creati `TH1D` per le variabili e disegnati. 
+3. Effettuato il cut con il metodo `reduce()` di `RooDataSet`. (Displacement cut)
+4. Creati altri `TH1D` dopo il cut (per più semplice manipolazione). 
+5. Plottati gli istogrammi 
+6. Fittata la B0s 
+    - Segnale: Johnson 
+    - Background: cheby a 3 
+7. Plottata la curva di B0s e calcolata purezza (dubbio, compilation error purity non defined)
+8. Fittata la phi
+    - Segnale: Voigtiana 
+    - Background: Cheby a 3 
+9. Plottata la curva di phi
 
 # Es 12: Profile likelihood
 [pdf](./pdf_esercitazioni/es12)
+
+Nella cartella ci sono due macro. Nella macro [yield](./es12_profile_likelihood/yield.C) sono presenti i punti 3, 4, 5, nell'altra no (per il resto sono uguali). 
+
+1. Fit non esteso della distribuzione di massa di B. (Modello ad un solo parametro)
+2. Fit esteso della stessa distribuzione (Modello a due parametri) 
+    **Nota: I due fit sono compatibili:** 
+    
+    - modello esteso -> f ~ 0.0297
+    - modello non esteso -> f = nsig/nbkg ~ 0.031
+3. Plotto la matrice di correlazione 
+4. Plotto la distribuzione degli errori con la funzione che mostra anche gli errori 
+5. Plotto i parametri nsig e larghezza della gaussiana nel loro spazio in due modi diversi
+6. Plotto la negative log likelihood
+7. Genero e plotto la profile likelihood
 
 # Note sulla versione di CINT e root.
 Versione di root locale: 6.22/02 (built from tag, 17 August 2020).
