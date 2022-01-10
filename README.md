@@ -27,7 +27,6 @@
 - [Es 9: Generazione di dati MonteCarlo e fit](#es-9-generazione-di-dati-montecarlo-e-fit)
   - [Nota: Come calcolare il tempo trascorso tra due punti del programma](#nota-come-calcolare-il-tempo-trascorso-tra-due-punti-del-programma)
 - [Es 10: Fit bidimensionale](#es-10-fit-bidimensionale)
-  - [Nota:](#nota)
 - [Es 11: Sottrazione del fondo](#es-11-sottrazione-del-fondo)
 - [Es 12: Profile likelihood](#es-12-profile-likelihood)
 - [Note sulla versione di CINT e root.](#note-sulla-versione-di-cint-e-root)
@@ -410,7 +409,7 @@ Serie di operazioni svolte nella macro in ordine:
 5. Fitto 
 6. Faccio il plot
 
-## Nota:
+**Nota:**
     Qui non ho caricato il file root necessario (myloop.root) nel repository perchè è grande circa 500Mb.
 
 # Es 11: Sottrazione del fondo 
