@@ -29,7 +29,9 @@
 - [Es 10: Fit bidimensionale](#es-10-fit-bidimensionale)
 - [Es 11: Sottrazione del fondo](#es-11-sottrazione-del-fondo)
 - [Es 12: Profile likelihood](#es-12-profile-likelihood)
-- [Note sulla versione di CINT e root.](#note-sulla-versione-di-cint-e-root)
+- [Nota: Indovinare la giusta pdf:](#nota-indovinare-la-giusta-pdf)
+- [Nota: Valore sull'asse y](#nota-valore-sullasse-y)
+- [Nota: Versione di CINT e root.](#nota-versione-di-cint-e-root)
 
 
 # Introduzione
@@ -446,7 +448,25 @@ Nella cartella ci sono due macro. Nella macro [yield](./es12_profile_likelihood/
 6. Plotto la negative log likelihood
 7. Genero e plotto la profile likelihood
 
-# Note sulla versione di CINT e root.
+
+# Nota: Indovinare la giusta pdf: 
+**Segnale**
+- Se il picco è asimmetrico -> **Crystal Ball**
+- Se il picco è simmetrico 
+  - Se il picco è molto stretto (< 5-10 MeV) -> **Voigtiana** 
+  - Se il picco è più largo (20-30 MeV) -> **Gaussiana**
+**Background**
+- Se monotono e concavità verso il basso -> **Esponenziale** 
+- In tutti gli altri casi -> **Chebychev**
+
+# Nota: Valore sull'asse y
+Gli istogrammi di solito hanno come titolo "events/numero" dove numero è la larghezza dei bin. 
+
+Puoi farlo in diversi modi: 
+1. Apri l'istogramma nel file che stai considerando con un `TBrowser` e zoommi l'asse x fino a trovare il binnaggio 
+2. Prima di fare il fit, plotti su un canvas solo l'istogramma e vedi il binning la lì (sempre a mano)
+3. Fai il range della variabile (questo lo decidi tu nella `RooRealVar`) e lo dividi per il numero di bin. 
+# Nota: Versione di CINT e root.
 Versione di root locale: 6.22/02 (built from tag, 17 August 2020).
 Versione di root nella macchina remota: 6.14/09 (built from tag, 22 November 2018).
 
