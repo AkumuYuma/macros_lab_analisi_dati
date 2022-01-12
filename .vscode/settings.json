@@ -16,6 +16,7 @@
         "B0s_bkgsub-1.C": "cpp",
         "sidesub.C": "cpp",
         "yield.C": "cpp",
-        "yield_1.C": "cpp"
+        "yield_1.C": "cpp",
+        "esercitazione.C": "cpp"
     }
 }

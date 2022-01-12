@@ -29,6 +29,8 @@
 - [Es 10: Fit bidimensionale](#es-10-fit-bidimensionale)
 - [Es 11: Sottrazione del fondo](#es-11-sottrazione-del-fondo)
 - [Es 12: Profile likelihood](#es-12-profile-likelihood)
+- [Esercitazioni esame](#esercitazioni-esame)
+  - [Novembre 2018](#novembre-2018)
 - [Nota: Indovinare la giusta pdf:](#nota-indovinare-la-giusta-pdf)
 - [Nota: Valore sull'asse y](#nota-valore-sullasse-y)
 - [Nota: Versione di CINT e root.](#nota-versione-di-cint-e-root)
@@ -448,6 +450,14 @@ Nella cartella ci sono due macro. Nella macro [yield](./es12_profile_likelihood/
 6. Plotto la negative log likelihood
 7. Genero e plotto la profile likelihood
 
+
+# Esercitazioni esame 
+Nella cartella [esercitazioni_esame](./esercitazioni_esame/) ci sono le varie macro scritte come esercizio per l'esame prese da vecchie tracce. 
+
+## Novembre 2018 
+[Traccia]() **Da inserire** 
+
+Simulare e fittare (con pull) due segnali. Il primo BreitWigner convoluto con risoluzione gaussiana (Uguale a [esercitazione_9](#es-9-generazione-di-dati-montecarlo-e-fit)), il secondo BreitWigner con larghezza compatibile con la risoluzione gaussiana. 
 
 # Nota: Indovinare la giusta pdf: 
 **Segnale**
