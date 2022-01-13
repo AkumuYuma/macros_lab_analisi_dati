@@ -455,10 +455,11 @@ Nella cartella ci sono due macro. Nella macro [yield](./es12_profile_likelihood/
 Nella cartella [esercitazioni_esame](./esercitazioni_esame/) ci sono le varie macro scritte come esercizio per l'esame prese da vecchie tracce. 
 
 ## Novembre 2018 
-[Traccia]() **Da inserire** 
+[Traccia](./esercitazioni_esame/nov_2018/novembre_2018.jpeg) 
 
 Simulare e fittare (con pull) due segnali. Il primo BreitWigner convoluto con risoluzione gaussiana (Uguale a [esercitazione_9](#es-9-generazione-di-dati-montecarlo-e-fit)), il secondo BreitWigner con larghezza compatibile con la risoluzione gaussiana. 
 
+In realtà no, sarebbe una Crystal ball e una Voigtiana ma alla fine non ho cambiato così almeno ho un'esercitazione un po' diversa che sennò so tutte uguali. 
 # Nota: Indovinare la giusta pdf: 
 **Segnale**
 - Se il picco è asimmetrico -> **Crystal Ball**
